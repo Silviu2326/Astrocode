@@ -342,7 +342,7 @@ const handleCopyPrompt = async () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/pages/${selectedPageIdForIa}/generate-user-stories`, {
+      const response = await fetch(`https://astrocode-eba407d9ef8a.herokuapp.com/api/projects/${currentProject.id}/pages/${selectedPageIdForIa}/generate-user-stories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ numUserStories: parseInt(String(numUserStories)), userStoryType })
@@ -375,7 +375,7 @@ const handleCopyPrompt = async () => {
     if (!selectedPageForDescriptionEdit || !currentProject) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}`, {
+      const response = await fetch(`https://astrocode-eba407d9ef8a.herokuapp.com/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ name: selectedPageForDescriptionEdit.name, description: editingPageDescription, route: selectedPageForDescriptionEdit.route })
@@ -395,7 +395,7 @@ const handleCopyPrompt = async () => {
     if (!selectedPageForDescriptionEdit || !currentProject) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}/generate-description`, {
+      const response = await fetch(`https://astrocode-eba407d9ef8a.herokuapp.com/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}/generate-description`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
       });
@@ -416,7 +416,7 @@ const handleCopyPrompt = async () => {
     if (currentProject) {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/github`, {
+        const response = await fetch(`https://astrocode-eba407d9ef8a.herokuapp.com/api/projects/${currentProject.id}/github`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ githubUrl: githubUrlInput.trim() || null })
@@ -437,7 +437,7 @@ const handleCopyPrompt = async () => {
     if (currentProject?.githubUrl) {
       const token = localStorage.getItem('token');
       try {
-        await fetch(`http://localhost:3001/api/projects/${currentProject.id}/github`, {
+        await fetch(`https://astrocode-eba407d9ef8a.herokuapp.com/api/projects/${currentProject.id}/github`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ githubUrl: null })
@@ -453,7 +453,7 @@ const handleCopyPrompt = async () => {
     if (currentProject?.githubUrl && window.confirm('¿Sincronizar proyecto? Esto analizará el repo de GitHub y generará historias de usuario con IA.')) {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/sync`, {
+        const response = await fetch(`https://astrocode-eba407d9ef8a.herokuapp.com/api/projects/${currentProject.id}/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
         });
@@ -485,7 +485,7 @@ const handleCopyPrompt = async () => {
     if (!currentProject) return;
     const token = localStorage.getItem('token');
     try {
-      await fetch(`http://localhost:3001/api/projects/${currentProject.id}`, {
+      await fetch(`https://astrocode-eba407d9ef8a.herokuapp.com/api/projects/${currentProject.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(editingProjectData)
