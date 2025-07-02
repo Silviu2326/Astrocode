@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://astrocode-eba407d9ef8a.herokuapp.com/api';
+const API_BASE_URL = 'https://web-production-d430.up.railway.app/api';
 
 // Función para hacer peticiones autenticadas
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
