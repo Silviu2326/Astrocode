@@ -820,7 +820,8 @@ const handleCopyPrompt = async () => {
             </motion.div>
           </motion.header>
 
-          <motion.div variants={itemVariants} className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <motion.div variants={itemVariants} className="mb-6 flex flex-col gap-4">
+            {/* Vistas en la parte superior */}
             <div className="flex items-center gap-1 bg-slate-900/50 border border-slate-800 rounded-lg p-1 shadow-lg">
               {[
                 { id: 'kanban', label: 'Kanban', icon: LayoutGrid },
@@ -837,16 +838,24 @@ const handleCopyPrompt = async () => {
                 </button>
               ))}
             </div>
-            <div className="flex gap-3">
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsAuthModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Shield className="h-5 w-5 text-blue-400" /><span>Auth</span></motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsColorsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Palette className="h-5 w-5 text-purple-400" /><span>Colores</span></motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsComponentsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Package className="h-5 w-5 text-green-400" /><span>Componentes</span></motion.button>
-              {viewMode === 'structure' && <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsFileModalOpen(true)} className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-500"><Plus className="h-5 w-5" /><span>Archivo</span></motion.button>}
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsPageModalOpen(true)} className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-500"><Plus className="h-5 w-5" /><span>Página</span></motion.button>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsGeneracionCompletaPopupOpen(true)} className="flex items-center gap-2 bg-green-600 px-4 py-2 rounded-lg hover:bg-green-500"><Plus className="h-5 w-5" /><span>Generar estructura de paginas y de user storys</span></motion.button>
+            
+            {/* Botones organizados en dos filas */}
+            <div className="flex flex-col gap-3">
+              {/* Primera fila de botones */}
+              <div className="flex gap-3 flex-wrap">
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsAuthModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Shield className="h-5 w-5 text-blue-400" /><span>Auth</span></motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsColorsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Palette className="h-5 w-5 text-purple-400" /><span>Colores</span></motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsComponentsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Package className="h-5 w-5 text-green-400" /><span>Componentes</span></motion.button>
+              </div>
+              
+              {/* Segunda fila de botones */}
+              <div className="flex gap-3 flex-wrap">
+                {viewMode === 'structure' && <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsFileModalOpen(true)} className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-500"><Plus className="h-5 w-5" /><span>Archivo</span></motion.button>}
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsPageModalOpen(true)} className="flex items-center gap-2 bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-500"><Plus className="h-5 w-5" /><span>Página</span></motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsGeneracionCompletaPopupOpen(true)} className="flex items-center gap-2 bg-green-600 px-4 py-2 rounded-lg hover:bg-green-500"><Plus className="h-5 w-5" /><span>Generar estructura de paginas y de user storys</span></motion.button>
+              </div>
             </div>
           </motion.div>
-
           <AnimatePresence mode="wait">
             <motion.div
               key={viewMode}
