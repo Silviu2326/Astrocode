@@ -94,7 +94,7 @@ export default function NewPageModal({ isOpen, onClose, onSubmit, initialPage, p
         throw new Error('No hay token de autenticación');
       }
 
-      const url = `https://web-production-d430.up.railway.app/api/projects/${projectId}/actualizarPagina`;
+      const url = `http://localhost:3001/api/projects/${projectId}/actualizarPagina`;
       console.log('🌐 [FRONTEND] Realizando petición a:', url);
       
       const requestBody = {
@@ -186,10 +186,10 @@ export default function NewPageModal({ isOpen, onClose, onSubmit, initialPage, p
       
       if (initialPage) {
         // Editando página existente
-        endpoint = `https://web-production-d430.up.railway.app/api/projects/${projectId}/pages/${initialPage.id}/generate-description`;
+        endpoint = `http://localhost:3001/api/projects/${projectId}/pages/${initialPage.id}/generate-description`;
       } else {
         // Nueva página - necesitamos crear un endpoint que genere descripción basada en título
-        endpoint = `https://web-production-d430.up.railway.app/api/projects/${projectId}/generate-page-description`;
+        endpoint = `http://localhost:3001/api/projects/${projectId}/generate-page-description`;
         body = { title: formData.title };
       }
 

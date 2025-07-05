@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown, Bell, Settings, User, LogOut, CheckCircle, AlertTriangle, Clock, Menu, X } from 'lucide-react';
@@ -6,11 +7,24 @@ import { ChevronDown, Bell, Settings, User, LogOut, CheckCircle, AlertTriangle, 
 const Header: React.FC = () => {
   const { currentProject } = useProject();
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState('main');
   const [selectedEnvironment, setSelectedEnvironment] = useState('development');
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Función para manejar el clic en configuración
+  const handleConfigurationClick = () => {
+    navigate('/configuracion');
+    setIsUserMenuOpen(false); // Cerrar el menú después de navegar
+  };
+
+  // Función para manejar el clic en perfil
+  const handleProfileClick = () => {
+    navigate('/perfil');
+    setIsUserMenuOpen(false); // Cerrar el menú después de navegar
+  };
 
   // Función mejorada para calcular el progreso basado en user stories
   const calculateProgress = () => {
@@ -198,11 +212,17 @@ const Header: React.FC = () => {
                   <p className="text-sm font-medium text-slate-200 truncate">{user?.name}</p>
                   <p className="text-sm text-slate-400 truncate">{user?.email}</p>
                 </div>
-                <button className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 transition-colors">
+                <button 
+                  onClick={handleProfileClick}
+                  className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
+                >
                   <User className="h-4 w-4 mr-2" />
                   Perfil
                 </button>
-                <button className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 transition-colors">
+                <button 
+                  onClick={handleConfigurationClick}
+                  className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
+                >
                   <Settings className="h-4 w-4 mr-2" />
                   Configuración
                 </button>

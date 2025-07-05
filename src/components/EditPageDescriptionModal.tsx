@@ -35,7 +35,7 @@ export default function EditPageDescriptionModal({
         throw new Error('No hay token de autenticación');
       }
 
-      const response = await fetch(`https://web-production-d430.up.railway.app/api/projects/${projectId}/pages/${pageId}`, {
+      const response = await fetch(`http://localhost:3001/api/projects/${projectId}/pages/${pageId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +69,7 @@ export default function EditPageDescriptionModal({
         throw new Error('No hay token de autenticación');
       }
 
-      const response = await fetch(`https://web-production-d430.up.railway.app/api/projects/${projectId}/pages/${pageId}/generate-description`, {
+      const response = await fetch(`http://localhost:3001/api/projects/${projectId}/pages/${pageId}/generate-description`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

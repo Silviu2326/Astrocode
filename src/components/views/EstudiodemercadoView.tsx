@@ -32,6 +32,25 @@ interface MarketData {
 const EstudiodemercadoView: React.FC<EstudiodemercadoViewProps> = ({ currentProject }) => {
   const [marketData, setMarketData] = useState<Record<string, MarketData>>({});
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+  const [activeTab, setActiveTab] = useState<string>('resumen-ejecutivo');
+
+  // Configuración de todos los tabs/bloques
+  const tabs = [
+    { id: 'resumen-ejecutivo', name: 'Resumen Ejecutivo', component: ResumenEjecutivo },
+    { id: 'definicion-mercado', name: 'Definición de Mercado', component: DefinicionMercado },
+    { id: 'segmentacion-personas', name: 'Segmentación y Personas', component: SegmentacionPersonas },
+    { id: 'tamano-mercado', name: 'Tamaño de Mercado', component: TamanoMercado },
+    { id: 'tendencias-crecimiento', name: 'Tendencias y Crecimiento', component: TendenciasCrecimiento },
+    { id: 'competencia', name: 'Competencia', component: Competencia },
+    { id: 'pricing-disposicion', name: 'Pricing y Disposición', component: PricingDisposicion },
+    { id: 'canales-distribucion', name: 'Canales de Distribución', component: CanalesDistribucion },
+    { id: 'regulacion-barreras', name: 'Regulación y Barreras', component: RegulacionBarreras },
+    { id: 'analisis-pestle', name: 'Análisis PESTLE', component: AnalisisPestle },
+    { id: 'porter-swot', name: 'Porter y SWOT', component: PorterSwot },
+    { id: 'proyeccion-demanda', name: 'Proyección de Demanda', component: ProyeccionDemanda },
+    { id: 'riesgos-oportunidades', name: 'Riesgos y Oportunidades', component: RiesgosOportunidades },
+    { id: 'conclusiones-recomendaciones', name: 'Conclusiones y Recomendaciones', component: ConclusionesRecomendaciones }
+  ];
 
   if (!currentProject) {
     return (
@@ -65,8 +84,12 @@ const EstudiodemercadoView: React.FC<EstudiodemercadoViewProps> = ({ currentProj
   };
 
   const completedSections = Object.keys(marketData).length;
-  const totalSections = 13;
+  const totalSections = tabs.length;
   const progressPercentage = (completedSections / totalSections) * 100;
+
+  // Encontrar el componente activo
+  const activeTabConfig = tabs.find(tab => tab.id === activeTab);
+  const ActiveComponent = activeTabConfig?.component;
 
   return (
     <div className="space-y-6">
@@ -114,91 +137,60 @@ const EstudiodemercadoView: React.FC<EstudiodemercadoViewProps> = ({ currentProj
         </div>
       </div>
 
-      {/* Componentes de bloques individuales */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        <ResumenEjecutivo 
-          data={marketData['resumen-ejecutivo']}
-          onGenerate={() => handleGenerateSection('resumen-ejecutivo')}
-          isLoading={loadingStates['resumen-ejecutivo']}
-        />
-        
-        <DefinicionMercado 
-          data={marketData['definicion-mercado']}
-          onGenerate={() => handleGenerateSection('definicion-mercado')}
-          isLoading={loadingStates['definicion-mercado']}
-        />
-        
-        <SegmentacionPersonas 
-          data={marketData['segmentacion-personas']}
-          onGenerate={() => handleGenerateSection('segmentacion-personas')}
-          isLoading={loadingStates['segmentacion-personas']}
-        />
-        
-        <TamanoMercado 
-          data={marketData['tamano-mercado']}
-          onGenerate={() => handleGenerateSection('tamano-mercado')}
-          isLoading={loadingStates['tamano-mercado']}
-        />
-        
-        <TendenciasCrecimiento 
-          data={marketData['tendencias-crecimiento']}
-          onGenerate={() => handleGenerateSection('tendencias-crecimiento')}
-          isLoading={loadingStates['tendencias-crecimiento']}
-        />
-        
-        <Competencia 
-          data={marketData['competencia']}
-          onGenerate={() => handleGenerateSection('competencia')}
-          isLoading={loadingStates['competencia']}
-        />
-        
-        <PricingDisposicion 
-          data={marketData['pricing-disposicion']}
-          onGenerate={() => handleGenerateSection('pricing-disposicion')}
-          isLoading={loadingStates['pricing-disposicion']}
-        />
-        
-        <CanalesDistribucion 
-          data={marketData['canales-distribucion']}
-          onGenerate={() => handleGenerateSection('canales-distribucion')}
-          isLoading={loadingStates['canales-distribucion']}
-        />
-        
-        <RegulacionBarreras 
-          data={marketData['regulacion-barreras']}
-          onGenerate={() => handleGenerateSection('regulacion-barreras')}
-          isLoading={loadingStates['regulacion-barreras']}
-        />
-        
-        <AnalisisPestle 
-          data={marketData['analisis-pestle']}
-          onGenerate={() => handleGenerateSection('analisis-pestle')}
-          isLoading={loadingStates['analisis-pestle']}
-        />
-        
-        <PorterSwot 
-          data={marketData['porter-swot']}
-          onGenerate={() => handleGenerateSection('porter-swot')}
-          isLoading={loadingStates['porter-swot']}
-        />
-        
-        <ProyeccionDemanda 
-          data={marketData['proyeccion-demanda']}
-          onGenerate={() => handleGenerateSection('proyeccion-demanda')}
-          isLoading={loadingStates['proyeccion-demanda']}
-        />
-        
-        <RiesgosOportunidades 
-          data={marketData['riesgos-oportunidades']}
-          onGenerate={() => handleGenerateSection('riesgos-oportunidades')}
-          isLoading={loadingStates['riesgos-oportunidades']}
-        />
-        
-        <ConclusionesRecomendaciones 
-          data={marketData['conclusiones-recomendaciones']}
-          onGenerate={() => handleGenerateSection('conclusiones-recomendaciones')}
-          isLoading={loadingStates['conclusiones-recomendaciones']}
-        />
+      {/* Navegación de tabs */}
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+        <div className="overflow-x-auto">
+          <div className="flex space-x-2 min-w-max">
+            {tabs.map((tab) => {
+              const isCompleted = marketData[tab.id];
+              const isActive = activeTab === tab.id;
+              const isLoading = loadingStates[tab.id];
+              
+              return (
+                <motion.button
+                  key={tab.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    px-4 py-2 rounded-lg font-medium transition-all duration-200 whitespace-nowrap
+                    ${
+                      isActive
+                        ? 'bg-blue-600 text-white shadow-lg'
+                        : isCompleted
+                        ? 'bg-green-600/20 text-green-400 border border-green-600/30'
+                        : isLoading
+                        ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-600/30'
+                        : 'bg-slate-700/50 text-slate-300 hover:bg-slate-600/50'
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-2">
+                    {isLoading && (
+                      <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    {isCompleted && !isLoading && (
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    )}
+                    <span>{tab.name}</span>
+                  </div>
+                </motion.button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Contenido del tab activo */}
+      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
+        {ActiveComponent && (
+          <ActiveComponent
+            project={currentProject}
+            data={marketData[activeTab]}
+            onGenerate={() => handleGenerateSection(activeTab)}
+            isLoading={loadingStates[activeTab] || false}
+          />
+        )}
       </div>
 
       {/* Botones de acción */}
@@ -209,13 +201,7 @@ const EstudiodemercadoView: React.FC<EstudiodemercadoViewProps> = ({ currentProj
           className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2"
           onClick={() => {
             // Generar todos los bloques secuencialmente
-            const sections = [
-              'resumen-ejecutivo', 'definicion-mercado', 'segmentacion-personas',
-              'tamano-mercado', 'tendencias-crecimiento', 'competencia',
-              'pricing-disposicion', 'canales-distribucion', 'regulacion-barreras',
-              'analisis-pestle', 'porter-swot', 'proyeccion-demanda',
-              'riesgos-oportunidades', 'conclusiones-recomendaciones'
-            ];
+            const sections = tabs.map(tab => tab.id);
             sections.forEach((section, index) => {
               setTimeout(() => handleGenerateSection(section), index * 1000);
             });

@@ -6,6 +6,8 @@ import Header from './components/Header';
 import LoginForm from './components/LoginForm';
 import ProjectList from './pages/ProjectList';
 import ProjectEdit from './pages/ProjectEdit';
+import ConfiguracionPage from './pages/ConfiguracionPage';
+import PerfilPage from './pages/PerfilPage';
 
 function AppContent() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -33,6 +35,8 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<ProjectList />} />
             <Route path="/project/:id" element={<ProjectEdit />} />
+            <Route path="/configuracion" element={<ConfiguracionPage />} />
+            <Route path="/perfil" element={<PerfilPage />} />
           </Routes>
         </div>
       </Router>

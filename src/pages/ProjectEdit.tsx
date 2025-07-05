@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Calendar, Users, LayoutGrid, FileText, FolderTree, Github, RefreshCw, Edit3, X, Trash2, Clock, GitBranch, Activity, MessageSquare, Code, ChevronLeft, ChevronRight, Bot, Terminal, FileCode, Shield, Palette, Package, Loader, BarChart3 } from 'lucide-react';
+import { Plus, Calendar, Users, LayoutGrid, FileText, FolderTree, Github, RefreshCw, Edit3, X, Trash2, Clock, GitBranch, Activity, MessageSquare, Code, ChevronLeft, ChevronRight, Bot, Terminal, FileCode, Shield, Palette, Package, Loader, BarChart3, Circle, Server } from 'lucide-react';
 import { useProject } from '../context/ProjectContext';
 import { AppPage, UserStory, FileNode } from '../types';
 import { projectService } from '../services/api';
@@ -19,8 +19,10 @@ import StructureView from '../components/views/StructureView';
 import TimelineView from '../components/views/TimelineView';
 import DependenciesView from '../components/views/DependenciesView';
 import EstudiodemercadoView from '../components/views/EstudiodemercadoView';
+import VistaNodosView from '../components/views/VistaNodosView';
+import VistaBackendView from '../components/views/VistaBackendView';
 
-type ViewMode = 'kanban' | 'pages' | 'structure' | 'timeline' | 'dependencies' | 'estudio-mercado';
+type ViewMode = 'kanban' | 'pages' | 'structure' | 'timeline' | 'dependencies' | 'estudio-mercado' | 'vistanodos' | 'vista-backend';
 
 const userStoryColumns = [
   { id: 'pending', title: 'Por Hacer', color: 'bg-slate-800/50 border-slate-700' },
@@ -342,7 +344,7 @@ const handleCopyPrompt = async () => {
     if (!token) return;
 
     try {
-      const response = await fetch(`https://web-production-d430.up.railway.app/api/projects/${currentProject.id}/pages/${selectedPageIdForIa}/generate-user-stories`, {
+      const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/pages/${selectedPageIdForIa}/generate-user-stories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ numUserStories: parseInt(String(numUserStories)), userStoryType })
@@ -375,7 +377,7 @@ const handleCopyPrompt = async () => {
     if (!selectedPageForDescriptionEdit || !currentProject) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`https://web-production-d430.up.railway.app/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}`, {
+      const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ name: selectedPageForDescriptionEdit.name, description: editingPageDescription, route: selectedPageForDescriptionEdit.route })
@@ -395,7 +397,7 @@ const handleCopyPrompt = async () => {
     if (!selectedPageForDescriptionEdit || !currentProject) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`https://web-production-d430.up.railway.app/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}/generate-description`, {
+      const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/pages/${selectedPageForDescriptionEdit.id}/generate-description`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
       });
@@ -416,7 +418,7 @@ const handleCopyPrompt = async () => {
     if (currentProject) {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`https://web-production-d430.up.railway.app/api/projects/${currentProject.id}/github`, {
+        const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/github`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ githubUrl: githubUrlInput.trim() || null })
@@ -437,7 +439,7 @@ const handleCopyPrompt = async () => {
     if (currentProject?.githubUrl) {
       const token = localStorage.getItem('token');
       try {
-        await fetch(`https://web-production-d430.up.railway.app/api/projects/${currentProject.id}/github`, {
+        await fetch(`http://localhost:3001/api/projects/${currentProject.id}/github`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
           body: JSON.stringify({ githubUrl: null })
@@ -453,7 +455,7 @@ const handleCopyPrompt = async () => {
     if (currentProject?.githubUrl && window.confirm('¿Sincronizar proyecto? Esto analizará el repo de GitHub y generará historias de usuario con IA.')) {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`https://web-production-d430.up.railway.app/api/projects/${currentProject.id}/sync`, {
+        const response = await fetch(`http://localhost:3001/api/projects/${currentProject.id}/sync`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
         });
@@ -485,7 +487,7 @@ const handleCopyPrompt = async () => {
     if (!currentProject) return;
     const token = localStorage.getItem('token');
     try {
-      await fetch(`https://web-production-d430.up.railway.app/api/projects/${currentProject.id}`, {
+      await fetch(`http://localhost:3001/api/projects/${currentProject.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(editingProjectData)
@@ -676,7 +678,7 @@ const handleCopyPrompt = async () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 flex overflow-hidden font-sans">
       <main className={`flex-1 transition-all duration-500 ease-in-out ${isSidebarOpen ? 'mr-80' : 'mr-0'}`}>
-        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 h-full flex flex-col">
           
           <motion.header className="mb-8" variants={itemVariants}>
             {!isEditingProject ? (
@@ -830,6 +832,8 @@ const handleCopyPrompt = async () => {
                 { id: 'timeline', label: 'Timeline', icon: Clock },
                 { id: 'dependencies', label: 'Dependencias', icon: GitBranch },
                 { id: 'estudio-mercado', label: 'Estudio de Mercado', icon: BarChart3 },
+                { id: 'vistanodos', label: 'Vista Nodos', icon: Circle },
+                { id: 'vista-backend', label: 'Vista Backend', icon: Server },
               ].map(view => (
                 <button key={view.id} onClick={() => setViewMode(view.id as ViewMode)} className={`relative flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${viewMode === view.id ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
                   {viewMode === view.id && <motion.div layoutId="active-view" className="absolute inset-0 bg-blue-600 rounded-md z-0" />}
@@ -863,13 +867,16 @@ const handleCopyPrompt = async () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
+              className="flex-1 min-h-0"
             >
               {viewMode === 'structure' && <StructureView currentProject={currentProject} fileStats={fileStats} handleEditFile={handleEditFile} handleDeleteFile={handleDeleteFile} handleAddChildFile={handleAddChildFile} setIsFileModalOpen={setIsFileModalOpen} />}
               {viewMode === 'kanban' && <KanbanView currentProject={currentProject} userStoryColumns={userStoryColumns} getUserStoriesByStatus={getUserStoriesByStatus} handleDragOver={handleDragOver} handleDrop={handleDrop} handleDragStart={handleDragStart} openUserStoryModal={openUserStoryModal} handleOpenIaGenerateModal={handleOpenIaGenerateModal} handleOpenEditPageDescriptionModal={handleOpenEditPageDescriptionModal} handleEditUserStory={handleEditUserStory} handleDeleteUserStory={handleDeleteUserStory} handleToggleUserStoryComplete={handleToggleUserStoryComplete} setIsPageModalOpen={setIsPageModalOpen} />}
               {viewMode === 'pages' && <PagesView currentProject={currentProject} userStoryColumns={userStoryColumns} getUserStoriesByStatus={getUserStoriesByStatus} handleDragOver={handleDragOver} handleDrop={handleDrop} handleDragStart={handleDragStart} openUserStoryModal={openUserStoryModal} handleOpenIaGenerateModal={handleOpenIaGenerateModal} handleOpenEditPageDescriptionModal={handleOpenEditPageDescriptionModal} handleEditUserStory={handleEditUserStory} handleDeleteUserStory={handleDeleteUserStory} handleToggleUserStoryComplete={handleToggleUserStoryComplete} onExecuteCompletedStories={handleExecuteCompletedStories} setIsPageModalOpen={setIsPageModalOpen} handleEditPage={handleEditPage} />}
+              {viewMode === 'vistanodos' && <VistaNodosView currentProject={currentProject} userStoryColumns={userStoryColumns} getUserStoriesByStatus={getUserStoriesByStatus} handleDragOver={handleDragOver} handleDrop={handleDrop} handleDragStart={handleDragStart} openUserStoryModal={openUserStoryModal} handleOpenIaGenerateModal={handleOpenIaGenerateModal} handleEditUserStory={handleEditUserStory} handleDeleteUserStory={handleDeleteUserStory} handleToggleUserStoryComplete={handleToggleUserStoryComplete} onExecuteCompletedStories={handleExecuteCompletedStories} setIsPageModalOpen={setIsPageModalOpen} handleEditPage={handleEditPage} />}
               {viewMode === 'timeline' && <TimelineView currentProject={currentProject} weeks={weeks} pageWeekAssignments={pageWeekAssignments} handleTimelineDragOver={handleTimelineDragOver} handleTimelineDrop={handleTimelineDrop} handleTimelineDragStart={handleTimelineDragStart} />}
               {viewMode === 'dependencies' && <DependenciesView dependencyData={dependencyData} />}
               {viewMode === 'estudio-mercado' && <EstudiodemercadoView currentProject={currentProject} />}
+              {viewMode === 'vista-backend' && <VistaBackendView currentProject={currentProject} />}
             </motion.div>
           </AnimatePresence>
         </div>
