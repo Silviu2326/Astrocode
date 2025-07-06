@@ -809,8 +809,18 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const moveUserStory = (projectId: string, pageId: string, userStoryId: string, newStatus: UserStory['status']) => {
-    updateUserStory(projectId, pageId, userStoryId, { status: newStatus });
+  const moveUserStory = async (projectId: string, pageId: string, userStoryId: string, newStatus: UserStory['status']) => {
+    try {
+      // Actualizar en el backend
+      await projectService.updateUserStoryStatus(projectId, pageId, userStoryId, newStatus);
+      
+      // Actualizar en el estado local
+      updateUserStory(projectId, pageId, userStoryId, { status: newStatus });
+    } catch (error) {
+      console.error('Error updating user story status:', error);
+      // En caso de error, aún actualizar localmente para mejor UX
+      updateUserStory(projectId, pageId, userStoryId, { status: newStatus });
+    }
   };
 
   // File structure management

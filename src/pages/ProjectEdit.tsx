@@ -21,8 +21,9 @@ import DependenciesView from '../components/views/DependenciesView';
 import EstudiodemercadoView from '../components/views/EstudiodemercadoView';
 import VistaNodosView from '../components/views/VistaNodosView';
 import VistaBackendView from '../components/views/VistaBackendView';
+import VistaDocumentosView from '../components/views/VistaDocumentosView';
 
-type ViewMode = 'kanban' | 'pages' | 'structure' | 'timeline' | 'dependencies' | 'estudio-mercado' | 'vistanodos' | 'vista-backend';
+type ViewMode = 'kanban' | 'pages' | 'structure' | 'timeline' | 'dependencies' | 'estudio-mercado' | 'vistanodos' | 'vista-backend' | 'vista-documentos';
 
 const userStoryColumns = [
   { id: 'pending', title: 'Por Hacer', color: 'bg-slate-800/50 border-slate-700' },
@@ -834,6 +835,7 @@ const handleCopyPrompt = async () => {
                 { id: 'estudio-mercado', label: 'Estudio de Mercado', icon: BarChart3 },
                 { id: 'vistanodos', label: 'Vista Nodos', icon: Circle },
                 { id: 'vista-backend', label: 'Vista Backend', icon: Server },
+                { id: 'vista-documentos', label: 'Documentos', icon: FileText },
               ].map(view => (
                 <button key={view.id} onClick={() => setViewMode(view.id as ViewMode)} className={`relative flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${viewMode === view.id ? 'text-white' : 'text-slate-400 hover:text-white'}`}>
                   {viewMode === view.id && <motion.div layoutId="active-view" className="absolute inset-0 bg-blue-600 rounded-md z-0" />}
@@ -877,6 +879,7 @@ const handleCopyPrompt = async () => {
               {viewMode === 'dependencies' && <DependenciesView dependencyData={dependencyData} />}
               {viewMode === 'estudio-mercado' && <EstudiodemercadoView currentProject={currentProject} />}
               {viewMode === 'vista-backend' && <VistaBackendView currentProject={currentProject} />}
+              {viewMode === 'vista-documentos' && <VistaDocumentosView currentProject={currentProject} />}
             </motion.div>
           </AnimatePresence>
         </div>

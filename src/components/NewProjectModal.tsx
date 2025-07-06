@@ -18,6 +18,7 @@ interface GeneratedSoftware {
   name: string;
   description: string;
   targetClient: string;
+  problemasQueResuelve: string[];
   pages: Array<{
     id: string;
     name: string;
@@ -46,7 +47,8 @@ export default function NewProjectModal({ isOpen, onClose }: NewProjectModalProp
   const [showAIPopup, setShowAIPopup] = useState(false);
   const [aiFormData, setAiFormData] = useState({
     nicho: '',
-    tipo: 'saas' as 'microsaas' | 'macrosaas' | 'saas'
+    tipo: 'saas' as 'microsaas' | 'macrosaas' | 'saas',
+    comentario: ''
   });
   const [generatedProjects, setGeneratedProjects] = useState<GeneratedSoftware[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -130,7 +132,7 @@ export default function NewProjectModal({ isOpen, onClose }: NewProjectModalProp
     // Reset states
     setShowAIPopup(false);
     setGeneratedProjects([]);
-    setAiFormData({ nicho: '', tipo: 'saas' });
+    setAiFormData({ nicho: '', tipo: 'saas', comentario: '' });
     setProjectType('manual');
     onClose();
   };
@@ -356,7 +358,7 @@ export default function NewProjectModal({ isOpen, onClose }: NewProjectModalProp
                 onClick={() => {
                   setShowAIPopup(false);
                   setGeneratedProjects([]);
-                  setAiFormData({ nicho: '', tipo: 'saas' });
+                  setAiFormData({ nicho: '', tipo: 'saas', comentario: '' });
                 }}
                 className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
               >
@@ -394,6 +396,19 @@ export default function NewProjectModal({ isOpen, onClose }: NewProjectModalProp
                       <option value="saas">SaaS - Software como servicio estándar</option>
                       <option value="macrosaas">MacroSaaS - Plataforma empresarial compleja</option>
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Comentarios Adicionales (opcional)
+                    </label>
+                    <textarea
+                      value={aiFormData.comentario}
+                      onChange={(e) => setAiFormData({ ...aiFormData, comentario: e.target.value })}
+                      rows={3}
+                      className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm transition-all duration-200 resize-none"
+                      placeholder="Consideraciones especiales, características específicas, restricciones técnicas..."
+                    />
                   </div>
 
                   <button
@@ -447,6 +462,20 @@ export default function NewProjectModal({ isOpen, onClose }: NewProjectModalProp
                                 <span className="text-xs text-gray-400">+{project.pages.length - 3} más</span>
                               )}
                             </div>
+                          </div>
+                        </div>
+                        
+                        <div className="mb-3">
+                          <h5 className="text-sm font-medium text-gray-400 mb-1">Problemas que Resuelve:</h5>
+                          <div className="flex flex-wrap gap-1">
+                            {project.problemasQueResuelve?.slice(0, 3).map((problema, index) => (
+                              <span key={index} className="text-xs bg-orange-500/20 text-orange-300 px-2 py-1 rounded">
+                                {problema}
+                              </span>
+                            ))}
+                            {project.problemasQueResuelve?.length > 3 && (
+                              <span className="text-xs text-gray-400">+{project.problemasQueResuelve.length - 3} más</span>
+                            )}
                           </div>
                         </div>
                         

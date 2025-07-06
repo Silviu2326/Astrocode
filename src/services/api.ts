@@ -14,7 +14,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
     try {
       const parsedBody = JSON.parse(options.body as string);
       console.log(`📋 [API-${requestId}] Body (parsed):`, JSON.stringify(parsedBody, null, 2));
-    } catch (e) {
+    } catch {
       console.log(`📋 [API-${requestId}] Body no es JSON válido`);
     }
   } else {
@@ -53,7 +53,7 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
       try {
         errorData = await response.json();
         console.error(`❌ [API-${requestId}] Error del servidor:`, errorData);
-      } catch (e) {
+      } catch {
         errorData = { message: `Error HTTP ${response.status}: ${response.statusText}` };
         console.error(`❌ [API-${requestId}] Error sin JSON:`, errorData);
       }
@@ -163,7 +163,7 @@ export const projectService = {
     priority?: 'low' | 'medium' | 'high';
     status?: 'todo' | 'in-progress' | 'done';
   }) => {
-    const backendData: any = {};
+    const backendData: Record<string, unknown> = {};
     if (pageData.title !== undefined) backendData.name = pageData.title;
     if (pageData.description !== undefined) backendData.description = pageData.description;
     if (pageData.title !== undefined) backendData.route = `/${pageData.title.toLowerCase().replace(/\s+/g, '-')}`;
@@ -184,6 +184,13 @@ export const projectService = {
     return apiRequest(`/projects/${projectId}/pages/${pageId}/stories`, {
       method: 'POST',
       body: JSON.stringify(storyData),
+    });
+  },
+
+  updateUserStoryStatus: async (projectId: string, pageId: string, userStoryId: string, status: 'todo' | 'in-progress' | 'done') => {
+    return apiRequest(`/projects/${projectId}/pages/${pageId}/stories/${userStoryId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
     });
   },
 
@@ -265,14 +272,14 @@ export const projectService = {
     });
   },
   
-  generateAdditionalPages: async (projectId: string, existingPages: any[]) => {
+  generateAdditionalPages: async (projectId: string, existingPages: unknown[]) => {
     return apiRequest(`/projects/${projectId}/generate-additional-pages`, {
       method: 'POST',
       body: JSON.stringify({ existingPages })
     });
   },
 
-  addMultiplePages: async (projectId: string, pages: any[]) => {
+  addMultiplePages: async (projectId: string, pages: unknown[]) => {
     return apiRequest(`/projects/${projectId}/multiple-pages`, {
       method: 'POST',
       body: JSON.stringify({ pages })
@@ -294,10 +301,17 @@ export const projectService = {
   },
 
   // Nueva función para guardar múltiples user stories
-  saveMultipleUserStories: async (projectId: string, pageId: string, userStories: any[]) => {
+  saveMultipleUserStories: async (projectId: string, pageId: string, userStories: unknown[]) => {
     return apiRequest(`/projects/${projectId}/pages/${pageId}/user-stories/save-multiple`, {
       method: 'POST',
       body: JSON.stringify({ userStories })
+    });
+  },
+
+  // Nueva función para generar historias de usuario para todo el proyecto
+  generateUserStoriesForProject: async (projectId: string) => {
+    return apiRequest(`/projects/${projectId}/generate-user-stories-completo`, {
+      method: 'POST'
     });
   },
 };

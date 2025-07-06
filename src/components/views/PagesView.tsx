@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, RefreshCw, Edit3, BookOpen, ChevronDown } from 'lucide-react';
+import { Plus, RefreshCw, Edit3, BookOpen, ChevronDown, Zap } from 'lucide-react';
 import { gsap } from 'gsap';
 import { AppPage, UserStory } from '../../types';
 import UserStoryCard from '../UserStoryCard';
+import { projectService } from '../../services/api';
 
 interface PagesViewProps {
   currentProject: any;
@@ -81,6 +82,7 @@ export default function PagesView({
   handleEditPage
 }: PagesViewProps) {
   const [completedStories, setCompletedStories] = useState<Set<string>>(new Set());
+  const [isGeneratingProjectStories, setIsGeneratingProjectStories] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -118,8 +120,63 @@ export default function PagesView({
     }
   };
 
+  const handleGenerateProjectStories = async () => {
+    if (!currentProject?.id) return;
+    
+    if (!window.confirm('¿Generar 6 historias de usuario para cada página del proyecto? Esto puede tomar unos minutos.')) {
+      return;
+    }
+
+    setIsGeneratingProjectStories(true);
+    try {
+      const response = await projectService.generateUserStoriesForProject(currentProject.id);
+      
+      if (response.success || response.message) {
+        alert(`✅ ${response.message || 'Historias de usuario generadas exitosamente'}`);
+        // Recargar la página para mostrar las nuevas historias
+        window.location.reload();
+      } else {
+        throw new Error('Respuesta inesperada del servidor');
+      }
+    } catch (error) {
+      console.error('Error generando historias de usuario:', error);
+      alert(`❌ Error al generar historias de usuario: ${error instanceof Error ? error.message : 'Error desconocido'}`);
+    } finally {
+      setIsGeneratingProjectStories(false);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 pb-8 text-white font-sans px-4 sm:px-0" ref={containerRef}>
+      {/* Botón para generar historias de usuario para todo el proyecto */}
+      {currentProject.pages.length > 0 && (
+        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-lg backdrop-blur-md p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex-1">
+              <h3 className="text-lg font-bold text-white mb-2">Generar Historias de Usuario</h3>
+              <p className="text-slate-400 text-sm">Genera automáticamente 6 historias de usuario para cada página del proyecto usando IA</p>
+            </div>
+            <button
+              onClick={handleGenerateProjectStories}
+              disabled={isGeneratingProjectStories}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 disabled:cursor-not-allowed rounded-lg transition-all duration-200 text-white font-medium text-sm whitespace-nowrap"
+            >
+              {isGeneratingProjectStories ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                  <span>Generando...</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" />
+                  <span>Generar Historias IA</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+      
       {currentProject.pages.map((page: AppPage) => (
         <PageCard key={page.id} page={page} {...{ openUserStoryModal, handleOpenIaGenerateModal, handleEditPage, onExecuteCompletedStories, handleDragOver, handleDrop, handleDragStart, handleEditUserStory, handleDeleteUserStory, handleToggleUserStoryComplete, setIsPageModalOpen }}>
           <div className="flex flex-wrap justify-end gap-2 mb-4">

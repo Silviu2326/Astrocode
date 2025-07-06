@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Play, Clock, CheckCircle, AlertCircle, Copy, ChevronDown, ChevronUp, Check, GitCommit } from 'lucide-react';
+import { X, Play, Clock, CheckCircle, AlertCircle, Copy, ChevronDown, ChevronUp, Check, GitCommit, Download } from 'lucide-react';
 import { UserStory, AppPage } from '../types';
 
 interface PopupExecutePromptsProps {
@@ -24,7 +24,7 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
 }) => {
   const [expandedStories, setExpandedStories] = useState<Set<string>>(new Set());
   const [copiedStories, setCopiedStories] = useState<Set<string>>(new Set());
-  const [copiedCommits, setCopiedCommits] = useState<Set<string>>(new Set());
+
   const [copiedGitCommands, setCopiedGitCommands] = useState<Map<string, Set<string>>>(new Map());
 
   if (!isOpen || !page) return null;
@@ -50,29 +50,132 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
     return commitMessage;
   };
 
-  const copyCommitMessage = async (story: UserStory) => {
+  const copyGitCommand = async (story: UserStory, commandType: 'add' | 'commit' | 'push') => {
     try {
-      const commitMessage = generateCommitMessage(story);
-      await navigator.clipboard.writeText(commitMessage);
+      let command = '';
+      switch (commandType) {
+        case 'add':
+          command = 'git add .';
+          break;
+        case 'commit':
+          command = `git commit -m "${generateCommitMessage(story)}"`;
+          break;
+        case 'push':
+          command = 'git push origin main';
+          break;
+      }
+      
+      await navigator.clipboard.writeText(command);
       
       // Mostrar feedback visual
-      setCopiedCommits(prev => new Set([...prev, story.id]));
+      setCopiedGitCommands(prev => {
+        const newMap = new Map(prev);
+        const storyCommands = newMap.get(story.id) || new Set();
+        storyCommands.add(commandType);
+        newMap.set(story.id, storyCommands);
+        return newMap;
+      });
+      
       setTimeout(() => {
-        setCopiedCommits(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(story.id);
-          return newSet;
+        setCopiedGitCommands(prev => {
+          const newMap = new Map(prev);
+          const storyCommands = newMap.get(story.id) || new Set();
+          storyCommands.delete(commandType);
+          if (storyCommands.size === 0) {
+            newMap.delete(story.id);
+          } else {
+            newMap.set(story.id, storyCommands);
+          }
+          return newMap;
         });
       }, 2000);
     } catch (error) {
-      console.error('Error al copiar commit al portapapeles:', error);
+      console.error('Error al copiar comando git al portapapeles:', error);
       // Fallback para navegadores que no soportan clipboard API
+      let command = '';
+      switch (commandType) {
+        case 'add':
+          command = 'git add .';
+          break;
+        case 'commit':
+          command = `git commit -m "${generateCommitMessage(story)}"`;
+          break;
+        case 'push':
+          command = 'git push origin main';
+          break;
+      }
+      
       const textArea = document.createElement('textarea');
-      textArea.value = generateCommitMessage(story);
+      textArea.value = command;
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
+    }
+  };
+
+  const generateJsonData = () => {
+    const messages: any[] = [];
+    
+    filteredUserStories.forEach((story) => {
+      // Agregar el prompt de la user story
+      messages.push({
+        type: 'prompt',
+        storyId: story.id,
+        storyTitle: story.title,
+        content: generatePrompt(story)
+      });
+      
+      // Agregar los 3 comandos Git
+      messages.push({
+        type: 'git_command',
+        storyId: story.id,
+        command: 'add',
+        content: 'git add .'
+      });
+      
+      messages.push({
+        type: 'git_command',
+        storyId: story.id,
+        command: 'commit',
+        content: `git commit -m "${generateCommitMessage(story)}"`
+      });
+      
+      messages.push({
+        type: 'git_command',
+        storyId: story.id,
+        command: 'push',
+        content: 'git push origin main'
+      });
+    });
+    
+    return {
+      page: {
+        title: page?.title || 'Sin nombre',
+        id: page?.id
+      },
+      totalStories: filteredUserStories.length,
+      generatedAt: new Date().toISOString(),
+      messages
+    };
+  };
+
+  const downloadJson = () => {
+    try {
+      const jsonData = generateJsonData();
+      const jsonString = JSON.stringify(jsonData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `prompts-${page?.title?.toLowerCase().replace(/\s+/g, '-') || 'page'}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error al generar el archivo JSON:', error);
     }
   };
 
@@ -224,18 +327,27 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
                 Ejecutar User Stories
               </h2>
               <p className="text-sm text-slate-400 mt-1">
-                Página: {page.title || page.name || 'Sin nombre'} • {filteredUserStories.length} historias {selectedUserStoryIds.length > 0 ? 'seleccionadas' : 'disponibles'}
+                Página: {page.title || 'Sin nombre'} • {filteredUserStories.length} historias {selectedUserStoryIds.length > 0 ? 'seleccionadas' : 'disponibles'}
               </p>
             </div>
             <div className="flex items-center gap-3">
               {filteredUserStories.length > 0 && (
-                <button
-                  onClick={onExecuteAll}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
-                >
-                  <Play className="w-4 h-4" />
-                  Ejecutar {selectedUserStoryIds.length > 0 ? 'Seleccionadas' : 'Todas'}
-                </button>
+                <>
+                  <button
+                    onClick={downloadJson}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    Descargar JSON
+                  </button>
+                  <button
+                    onClick={onExecuteAll}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Play className="w-4 h-4" />
+                    Ejecutar {selectedUserStoryIds.length > 0 ? 'Seleccionadas' : 'Todas'}
+                  </button>
+                </>
               )}
               <button
                 onClick={onClose}
@@ -265,7 +377,7 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
                 {filteredUserStories.map((story) => {
                   const isExpanded = expandedStories.has(story.id);
                   const isCopied = copiedStories.has(story.id);
-                  const isCommitCopied = copiedCommits.has(story.id);
+
                   
                   return (
                     <motion.div
@@ -476,68 +588,3 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
 };
 
 export default PopupExecutePrompts;
-
-
-const copyGitCommand = async (story: UserStory, commandType: 'add' | 'commit' | 'push') => {
-  try {
-    let command = '';
-    switch (commandType) {
-      case 'add':
-        command = 'git add .';
-        break;
-      case 'commit':
-        command = `git commit -m "${generateCommitMessage(story)}"`;
-        break;
-      case 'push':
-        command = 'git push origin main';
-        break;
-    }
-    
-    await navigator.clipboard.writeText(command);
-    
-    // Mostrar feedback visual
-    setCopiedGitCommands(prev => {
-      const newMap = new Map(prev);
-      const storyCommands = newMap.get(story.id) || new Set();
-      storyCommands.add(commandType);
-      newMap.set(story.id, storyCommands);
-      return newMap;
-    });
-    
-    setTimeout(() => {
-      setCopiedGitCommands(prev => {
-        const newMap = new Map(prev);
-        const storyCommands = newMap.get(story.id) || new Set();
-        storyCommands.delete(commandType);
-        if (storyCommands.size === 0) {
-          newMap.delete(story.id);
-        } else {
-          newMap.set(story.id, storyCommands);
-        }
-        return newMap;
-      });
-    }, 2000);
-  } catch (error) {
-    console.error('Error al copiar comando git al portapapeles:', error);
-    // Fallback para navegadores que no soportan clipboard API
-    let command = '';
-    switch (commandType) {
-      case 'add':
-        command = 'git add .';
-        break;
-      case 'commit':
-        command = `git commit -m "${generateCommitMessage(story)}"`;
-        break;
-      case 'push':
-        command = 'git push origin main';
-        break;
-    }
-    
-    const textArea = document.createElement('textarea');
-    textArea.value = command;
-    document.body.appendChild(textArea);
-    textArea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textArea);
-  }
-};
