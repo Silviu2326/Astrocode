@@ -265,7 +265,7 @@ export default function PagesView({
         
         {currentProject.pages.map((page: AppPage) => (
           <PageCard key={page.id} page={page} {...{ openUserStoryModal, handleOpenIaGenerateModal, handleEditPage, onExecuteCompletedStories, handleDragOver, handleDrop, handleDragStart, handleEditUserStory, handleDeleteUserStory, handleToggleUserStoryComplete, setIsPageModalOpen }}>
-            <div className="flex flex-wrap justify-end gap-2 mb-4">
+            <div className="flex flex-wrap justify-start gap-2 mb-4">
               <button onClick={() => openUserStoryModal(page.id)} className="flex items-center gap-1 px-2 sm:px-3 py-1.5 bg-indigo-600/50 border border-indigo-500 rounded-md hover:bg-indigo-600/70 text-xs whitespace-nowrap">
                 <Plus className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">New Story</span>
