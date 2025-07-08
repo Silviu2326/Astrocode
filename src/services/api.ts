@@ -314,6 +314,18 @@ export const projectService = {
       method: 'POST'
     });
   },
+
+  // Nueva función para generar historias de usuario personalizadas
+  generateUserStoriesPersonal: async (projectId: string, pageId: string, data: {
+    storyCount: number;
+    strategicImpact: 'core' | 'high-impact' | 'nice-to-have' | 'competitive-risk';
+    comments?: string;
+  }) => {
+    return apiRequest(`/projects/${projectId}/pages/${pageId}/generate-user-stories-personal`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
 };
 
 // Servicios de usuarios

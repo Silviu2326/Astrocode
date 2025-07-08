@@ -251,8 +251,18 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
       prompt += `## Tarea para Editor IA\n${story.aiEditorTask}\n\n`;
     }
     
-    // Sección de commit eliminada
-    
+    // Agregar restricción de carpeta al final
+    if (story.affectedFiles && story.affectedFiles.length > 0) {
+      // Extraer la carpeta del primer archivo afectado
+      const firstFile = story.affectedFiles[0];
+      const folderMatch = firstFile.match(/^(.*\/[^\/]+)\//);
+      
+      if (folderMatch) {
+        const folderPath = folderMatch[1];
+        prompt += `\n## RESTRICCIÓN IMPORTANTE\n`;
+        prompt += `PROHIBIDO TOCAR ARCHIVOS QUE NO SEAN DE LA CARPETA @${folderPath}\n`;
+      }
+    }
     
     return prompt;
   };
@@ -333,6 +343,13 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
             <div className="flex items-center gap-3">
               {filteredUserStories.length > 0 && (
                 <>
+                  <button
+                    onClick={generateSimpleJson}
+                    className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors flex items-center gap-2"
+                  >
+                    <Copy className="w-4 h-4" />
+                    JSON Simple
+                  </button>
                   <button
                     onClick={downloadJson}
                     className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
@@ -588,3 +605,34 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
 };
 
 export default PopupExecutePrompts;
+
+
+
+  const generateSimpleJson = () => {
+    try {
+      const prompts = filteredUserStories.map(story => {
+        const prompt = generatePrompt(story);
+        // Convertir a una sola línea escapando comillas y eliminando saltos de línea
+        const singleLinePrompt = prompt.replace(/\n/g, '\\n').replace(/"/g, '\\"');
+        return `"${singleLinePrompt}"`;
+      });
+      
+      const jsonString = `[${prompts.join(',')}]`;
+      
+      // Copiar al portapapeles
+      navigator.clipboard.writeText(jsonString).then(() => {
+        console.log('JSON simple copiado al portapapeles');
+      }).catch(error => {
+        console.error('Error al copiar al portapapeles:', error);
+        // Fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = jsonString;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      });
+    } catch (error) {
+      console.error('Error al generar JSON simple:', error);
+    }
+  };

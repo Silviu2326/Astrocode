@@ -14,6 +14,8 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
   const [generationResult, setGenerationResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [editingPageId, setEditingPageId] = useState<string | null>(null);
+  const [editingPage, setEditingPage] = useState<any>(null);
 
   const handleGeneratePages = async () => {
     if (!currentProject?.id) {
@@ -219,30 +221,122 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
               <div className="space-y-2 max-h-60 overflow-y-auto">
                 {generationResult.generatedPages?.map((page: any) => (
                   <div key={page.id} className="p-3 bg-gray-800 rounded border-l-4 border-blue-500">
-                    <div className="flex justify-between items-start mb-1">
-                      <h4 className="font-semibold text-white">{page.name}</h4>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
-                          Prioridad: {page.priority}
-                        </span>
-                        <button
-                          onClick={() => handleDeletePage(page.id)}
-                          className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
-                          title="Eliminar página"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                          Eliminar
-                        </button>
+                    {editingPageId === page.id ? (
+                      // Modo edición
+                      <div className="space-y-3">
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Nombre:</label>
+                          <input
+                            type="text"
+                            value={editingPage?.name || ''}
+                            onChange={(e) => handleEditFieldChange('name', e.target.value)}
+                            className="w-full px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs text-gray-400 mb-1">Descripción:</label>
+                          <textarea
+                            value={editingPage?.description || ''}
+                            onChange={(e) => handleEditFieldChange('description', e.target.value)}
+                            rows={2}
+                            className="w-full px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:border-blue-500 focus:outline-none resize-none"
+                          />
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="flex-1">
+                            <label className="block text-xs text-gray-400 mb-1">Ruta:</label>
+                            <input
+                              type="text"
+                              value={editingPage?.route || ''}
+                              onChange={(e) => handleEditFieldChange('route', e.target.value)}
+                              className="w-full px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                            />
+                          </div>
+                          <div className="w-20">
+                            <label className="block text-xs text-gray-400 mb-1">Prioridad:</label>
+                            <select
+                              value={editingPage?.priority || 'Media'}
+                              onChange={(e) => handleEditFieldChange('priority', e.target.value)}
+                              className="w-full px-2 py-1 bg-gray-700 text-white text-sm rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+                            >
+                              <option value="Alta">Alta</option>
+                              <option value="Media">Media</option>
+                              <option value="Baja">Baja</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id={`essential-${page.id}`}
+                            checked={editingPage?.isEssential || false}
+                            onChange={(e) => handleEditFieldChange('isEssential', e.target.checked)}
+                            className="w-4 h-4 text-yellow-600 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500 focus:ring-2"
+                          />
+                          <label htmlFor={`essential-${page.id}`} className="text-xs text-gray-400">
+                            Página esencial
+                          </label>
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            onClick={handleSaveEdit}
+                            className="bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-1 rounded flex items-center gap-1"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Guardar
+                          </button>
+                          <button
+                            onClick={handleCancelEdit}
+                            className="bg-gray-600 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded flex items-center gap-1"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Cancelar
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-gray-300 text-sm mb-1">{page.description}</p>
-                    <p className="text-gray-400 text-xs">Ruta: {page.route}</p>
-                    {page.isEssential && (
-                      <span className="inline-block mt-1 text-xs bg-yellow-600 text-white px-2 py-1 rounded">
-                        Esencial
-                      </span>
+                    ) : (
+                      // Modo visualización
+                      <>
+                        <div className="flex justify-between items-start mb-1">
+                          <h4 className="font-semibold text-white">{page.name}</h4>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                              Prioridad: {page.priority}
+                            </span>
+                            <button
+                              onClick={() => handleEditPage(page)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
+                              title="Editar página"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              Editar
+                            </button>
+                            <button
+                              onClick={() => handleDeletePage(page.id)}
+                              className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded flex items-center gap-1"
+                              title="Eliminar página"
+                            >
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-gray-300 text-sm mb-1">{page.description}</p>
+                        <p className="text-gray-400 text-xs">Ruta: {page.route}</p>
+                        {page.isEssential && (
+                          <span className="inline-block mt-1 text-xs bg-yellow-600 text-white px-2 py-1 rounded">
+                            Esencial
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 ))}
@@ -274,3 +368,36 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
 };
 
 export default GeneracionCompletaPopup;
+
+const handleEditPage = (page: any) => {
+  setEditingPageId(page.id);
+  setEditingPage({ ...page });
+};
+
+const handleSaveEdit = () => {
+  if (generationResult && editingPage) {
+    const updatedPages = generationResult.generatedPages.map((page: any) =>
+      page.id === editingPage.id ? editingPage : page
+    );
+    setGenerationResult({
+      ...generationResult,
+      generatedPages: updatedPages
+    });
+    setEditingPageId(null);
+    setEditingPage(null);
+  }
+};
+
+const handleCancelEdit = () => {
+  setEditingPageId(null);
+  setEditingPage(null);
+};
+
+const handleEditFieldChange = (field: string, value: any) => {
+  if (editingPage) {
+    setEditingPage({
+      ...editingPage,
+      [field]: value
+    });
+  }
+};

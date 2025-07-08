@@ -37,8 +37,7 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
     aiEditorTask: initialUserStory?.aiEditorTask || '',
     priority: initialUserStory?.priority || 'medium' as const,
     estimatedHours: initialUserStory?.estimatedHours || 0,
-    status: initialUserStory?.status || 'todo' as const,
-    type: initialUserStory?.type || 'page' as const,
+    status: initialUserStory?.status || 'pending' as const, // Cambiado de 'todo' a 'pending'
   });
 
   React.useEffect(() => {
@@ -64,7 +63,6 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
         priority: initialUserStory.priority,
         estimatedHours: initialUserStory.estimatedHours || 0,
         status: initialUserStory.status,
-        type: initialUserStory.type,
       });
     } else {
       setFormData({
@@ -87,12 +85,12 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
         aiEditorTask: '',
         priority: 'medium',
         estimatedHours: 0,
-        status: 'todo',
-        type: 'page',
+        status: 'pending', // Cambiado de 'todo' a 'pending'
       });
     }
   }, [initialUserStory]);
 
+  // ... existing code ...
   const handleGenerateWithAI = async () => {
     try {
       setIsGenerating(true);
@@ -101,7 +99,6 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
       if (response && response.generatedUserStories && Array.isArray(response.generatedUserStories)) {
         setGeneratedUserStories(response.generatedUserStories);
         setShowGeneratedStories(true);
-        // Expandir todas las historias por defecto para mostrar toda la información
         setExpandedStories(new Set(response.generatedUserStories.map((_, index) => index)));
       }
     } catch (error) {
@@ -116,7 +113,6 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
     setExpandedStories(prev => {
       const newSet = new Set(prev);
       newSet.delete(index);
-      // Reajustar índices
       const adjustedSet = new Set();
       Array.from(newSet).forEach(idx => {
         if (idx < index) {
@@ -162,8 +158,7 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
           aiEditorTask: story.aiEditorTask,
           priority: story.priority,
           estimatedHours: story.estimatedHours,
-          status: story.status || 'todo',
-          type: story.type || 'page',
+          status: story.status || 'pending', // Cambiado de 'todo' a 'pending'
         });
       });
       
@@ -517,7 +512,7 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
             )}
           </div>
         ) : (
-          // Formulario original
+          // Formulario completo actualizado
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Título y Descripción */}
             <div className="grid grid-cols-1 gap-4">
@@ -545,11 +540,376 @@ export default function NewUserStoryModal({ isOpen, onClose, onSubmit, initialUs
                   rows={3}
                   className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200 resize-none"
                   placeholder="Describe en detalle la funcionalidad requerida..."
+                  required
                 />
               </div>
             </div>
 
-            {/* ... resto del formulario existente ... */}
+            {/* Contexto de Página */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Contexto de Página
+              </label>
+              <input
+                type="text"
+                value={formData.pageContext}
+                onChange={(e) => setFormData({ ...formData, pageContext: e.target.value })}
+                className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                placeholder="Ej: Dashboard principal, Página de login, etc."
+              />
+            </div>
+
+            {/* Archivos Afectados */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                <FileText className="h-4 w-4" />
+                <span>Archivos Afectados</span>
+              </label>
+              {formData.affectedFiles.map((file, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="text"
+                    value={file}
+                    onChange={(e) => updateArrayItem('affectedFiles', index, e.target.value)}
+                    className="flex-1 px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                    placeholder="src/components/Dashboard.tsx"
+                  />
+                  {formData.affectedFiles.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem('affectedFiles', index)}
+                      className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem('affectedFiles', '')}
+                className="flex items-center space-x-2 px-3 py-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Agregar Archivo</span>
+              </button>
+            </div>
+
+            {/* Componentes/Módulos */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Componentes a Crear */}
+              <div>
+                <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                  <Code className="h-4 w-4" />
+                  <span>Componentes a Crear</span>
+                </label>
+                {formData.componentsModules.create.map((comp, index) => (
+                  <div key={index} className="flex items-center space-x-2 mb-2">
+                    <input
+                      type="text"
+                      value={comp.name}
+                      onChange={(e) => {
+                        const newCreate = [...formData.componentsModules.create];
+                        newCreate[index] = { ...newCreate[index], name: e.target.value };
+                        setFormData({ ...formData, componentsModules: { ...formData.componentsModules, create: newCreate } });
+                      }}
+                      className="flex-1 px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                      placeholder="NombreComponente"
+                    />
+                    <select
+                      value={comp.type}
+                      onChange={(e) => {
+                        const newCreate = [...formData.componentsModules.create];
+                        newCreate[index] = { ...newCreate[index], type: e.target.value as any };
+                        setFormData({ ...formData, componentsModules: { ...formData.componentsModules, create: newCreate } });
+                      }}
+                      className="px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                    >
+                      <option value="component">Component</option>
+                      <option value="hook">Hook</option>
+                      <option value="service">Service</option>
+                      <option value="util">Util</option>
+                      <option value="module">Module</option>
+                    </select>
+                    {formData.componentsModules.create.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newCreate = formData.componentsModules.create.filter((_, i) => i !== index);
+                          setFormData({ ...formData, componentsModules: { ...formData.componentsModules, create: newCreate } });
+                        }}
+                        className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newCreate = [...formData.componentsModules.create, { name: '', type: 'component' as const }];
+                    setFormData({ ...formData, componentsModules: { ...formData.componentsModules, create: newCreate } });
+                  }}
+                  className="flex items-center space-x-2 px-3 py-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Agregar Componente</span>
+                </button>
+              </div>
+
+              {/* Componentes a Importar */}
+              <div>
+                <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                  <Code className="h-4 w-4" />
+                  <span>Componentes a Importar</span>
+                </label>
+                {formData.componentsModules.import.map((imp, index) => (
+                  <div key={index} className="space-y-2 mb-3 p-3 bg-white/5 rounded-lg">
+                    <input
+                      type="text"
+                      value={imp.name}
+                      onChange={(e) => {
+                        const newImport = [...formData.componentsModules.import];
+                        newImport[index] = { ...newImport[index], name: e.target.value };
+                        setFormData({ ...formData, componentsModules: { ...formData.componentsModules, import: newImport } });
+                      }}
+                      className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                      placeholder="NombreComponente"
+                    />
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={imp.from}
+                        onChange={(e) => {
+                          const newImport = [...formData.componentsModules.import];
+                          newImport[index] = { ...newImport[index], from: e.target.value };
+                          setFormData({ ...formData, componentsModules: { ...formData.componentsModules, import: newImport } });
+                        }}
+                        className="flex-1 px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                        placeholder="./components/Button"
+                      />
+                      {formData.componentsModules.import.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newImport = formData.componentsModules.import.filter((_, i) => i !== index);
+                            setFormData({ ...formData, componentsModules: { ...formData.componentsModules, import: newImport } });
+                          }}
+                          className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newImport = [...formData.componentsModules.import, { name: '', from: '' }];
+                    setFormData({ ...formData, componentsModules: { ...formData.componentsModules, import: newImport } });
+                  }}
+                  className="flex items-center space-x-2 px-3 py-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Agregar Import</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Lógica/Datos */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                <Code className="h-4 w-4" />
+                <span>Lógica/Datos</span>
+              </label>
+              <textarea
+                value={formData.logicData}
+                onChange={(e) => setFormData({ ...formData, logicData: e.target.value })}
+                rows={4}
+                className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200 resize-none"
+                placeholder="Describe la lógica de negocio, estados, efectos, etc."
+              />
+            </div>
+
+            {/* Styling */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                <Palette className="h-4 w-4" />
+                <span>Estilos</span>
+              </label>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Framework</label>
+                  <select
+                    value={formData.styling.framework}
+                    onChange={(e) => setFormData({ ...formData, styling: { ...formData.styling, framework: e.target.value } })}
+                    className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  >
+                    <option value="tailwind">Tailwind CSS</option>
+                    <option value="css">CSS</option>
+                    <option value="scss">SCSS</option>
+                    <option value="styled-components">Styled Components</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Clases CSS</label>
+                  <textarea
+                    value={formData.styling.classes}
+                    onChange={(e) => setFormData({ ...formData, styling: { ...formData.styling, classes: e.target.value } })}
+                    rows={3}
+                    className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200 resize-none"
+                    placeholder="bg-blue-500 text-white p-4 rounded-lg..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Esquema de Colores</label>
+                  <input
+                    type="text"
+                    value={formData.styling.colorCoding}
+                    onChange={(e) => setFormData({ ...formData, styling: { ...formData.styling, colorCoding: e.target.value } })}
+                    className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                    placeholder="Primario: #3B82F6, Secundario: #10B981..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Criterios de Aceptación */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                <CheckSquare className="h-4 w-4" />
+                <span>Criterios de Aceptación</span>
+              </label>
+              {formData.acceptanceCriteria.map((criteria, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="text"
+                    value={criteria}
+                    onChange={(e) => updateArrayItem('acceptanceCriteria', index, e.target.value)}
+                    className="flex-1 px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                    placeholder="El usuario debe poder..."
+                  />
+                  {formData.acceptanceCriteria.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem('acceptanceCriteria', index)}
+                      className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem('acceptanceCriteria', '')}
+                className="flex items-center space-x-2 px-3 py-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Agregar Criterio</span>
+              </button>
+            </div>
+
+            {/* Sugerencias Adicionales */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                <Lightbulb className="h-4 w-4" />
+                <span>Sugerencias Adicionales</span>
+              </label>
+              {formData.additionalSuggestions.map((suggestion, index) => (
+                <div key={index} className="flex items-center space-x-2 mb-2">
+                  <input
+                    type="text"
+                    value={suggestion}
+                    onChange={(e) => updateArrayItem('additionalSuggestions', index, e.target.value)}
+                    className="flex-1 px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                    placeholder="Considera agregar..."
+                  />
+                  {formData.additionalSuggestions.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem('additionalSuggestions', index)}
+                      className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-all duration-200"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem('additionalSuggestions', '')}
+                className="flex items-center space-x-2 px-3 py-2 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Agregar Sugerencia</span>
+              </button>
+            </div>
+
+            {/* Tarea del Editor IA */}
+            <div>
+              <label className="flex items-center space-x-2 text-sm font-medium text-gray-300 mb-2">
+                <Bot className="h-4 w-4" />
+                <span>Tarea del Editor IA</span>
+              </label>
+              <textarea
+                value={formData.aiEditorTask}
+                onChange={(e) => setFormData({ ...formData, aiEditorTask: e.target.value })}
+                rows={3}
+                className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200 resize-none"
+                placeholder="Instrucciones específicas para el editor IA..."
+              />
+            </div>
+
+            {/* Configuración */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Prioridad
+                </label>
+                <select
+                  value={formData.priority}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                  className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                >
+                  <option value="low">Baja</option>
+                  <option value="medium">Media</option>
+                  <option value="high">Alta</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Estado
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                >
+                  <option value="pending">Pendiente</option>
+                  <option value="in-progress">En Progreso</option>
+                  <option value="completed">Completado</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Horas Estimadas
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={formData.estimatedHours}
+                  onChange={(e) => setFormData({ ...formData, estimatedHours: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  placeholder="0"
+                />
+              </div>
+            </div>
             
             <div className="flex space-x-3 pt-4 border-t border-gray-700/50">
               <button
