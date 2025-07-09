@@ -162,20 +162,36 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
 
   const downloadJson = () => {
     try {
-      const jsonData = generateJsonData();
-      const jsonString = JSON.stringify(jsonData, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
+      // Generar array de prompts en formato bash con ANSI-C quoting
+      const prompts = filteredUserStories.map(story => {
+        const prompt = generatePrompt(story);
+        // Escapar caracteres especiales para formato ANSI-C quoting
+        const escapedPrompt = prompt
+          .replace(/\\/g, '\\\\')
+          .replace(/'/g, "\\'") 
+          .replace(/\n/g, '\\n')
+          .replace(/\t/g, '\\t')
+          .replace(/\r/g, '\\r');
+        return `   $'${escapedPrompt} Cuando termines, escribe: TAREA COMPLETADA.'`;
+      });
+      
+      // Crear el contenido del archivo en formato bash
+      const fileContent = `prompts=(
+${prompts.join('\n')}
+)`;
+      
+      const blob = new Blob([fileContent], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       
       const link = document.createElement('a');
       link.href = url;
-      link.download = `prompts-${page?.title?.toLowerCase().replace(/\s+/g, '-') || 'page'}-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = `prompts-${page?.title?.toLowerCase().replace(/\s+/g, '-') || 'page'}-${new Date().toISOString().split('T')[0]}.txt`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error al generar el archivo JSON:', error);
+      console.error('Error al generar el archivo TXT:', error);
     }
   };
 
@@ -222,12 +238,6 @@ const PopupExecutePrompts: React.FC<PopupExecutePromptsProps> = ({
     
     if (story.styling) {
       prompt += `## Estilos\n`;
-      prompt += `- Framework: ${story.styling.framework}\n`;
-      prompt += `- Clases: ${story.styling.classes}\n`;
-      if (story.styling.colorCoding) {
-        prompt += `- Codificación de colores: ${story.styling.colorCoding}\n`;
-      }
-      prompt += `\n`;
       prompt += `IMPORTANTE: Revisar el @tailwind.config.js y usar esos colores definidos en la configuración.\n\n`;
     }
     
