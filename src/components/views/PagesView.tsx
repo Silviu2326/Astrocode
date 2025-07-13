@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, RefreshCw, Edit3, BookOpen, ChevronDown, Zap, Sparkles, CheckSquare, Square } from 'lucide-react';
+import { Plus, RefreshCw, Edit3, BookOpen, ChevronDown, Zap, Sparkles, CheckSquare, Square, Play } from 'lucide-react';
 import { gsap } from 'gsap';
 import { AppPage, UserStory } from '../../types';
 import UserStoryCard from '../UserStoryCard';
 import PopupUserStoriesIA from '../PopupUserStoriesIA';
 import { projectService } from '../../services/api';
 import UserStoriesResultModal from '../UserStoriesResultModal';
-
+import PopupExecutePrompts from '../PopupExecutePrompts';
 interface PagesViewProps {
   currentProject: any;
   userStoryColumns: Array<{ id: string; title: string; color: string; }>;
@@ -22,6 +22,8 @@ interface PagesViewProps {
   onExecuteCompletedStories?: (pageId: string, selectedStoryIds?: string[]) => void;
   setIsPageModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   handleEditPage?: (page: AppPage) => void;
+  // ✅ Nuevas props para PopupExecutePrompts
+  onExecuteAllProjectStories?: () => void;
 }
 
 const PageCard = ({
@@ -29,12 +31,14 @@ const PageCard = ({
   children,
   ...props
 }: { page: AppPage, children: React.ReactNode } & Omit<PagesViewProps, 'currentProject' | 'getUserStoriesByStatus' | 'setIsPageModalOpen'>) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false); // Cambiar de true a false
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    gsap.set(contentRef.current, { height: 'auto' });
-    gsap.from(contentRef.current, { height: 0, duration: 0.5, ease: 'power3.inOut' });
+    gsap.set(contentRef.current, { height: isExpanded ? 'auto' : 0 }); // Ajustar la altura inicial
+    if (isExpanded) {
+      gsap.from(contentRef.current, { height: 0, duration: 0.5, ease: 'power3.inOut' });
+    }
   }, []);
 
   const toggleExpand = () => {
@@ -81,7 +85,8 @@ export default function PagesView({
   handleToggleUserStoryComplete,
   onExecuteCompletedStories,
   setIsPageModalOpen,
-  handleEditPage
+  handleEditPage,
+  onExecuteAllProjectStories
 }: PagesViewProps) {
   const [completedStories, setCompletedStories] = useState<Set<string>>(new Set());
   const [isGeneratingProjectStories, setIsGeneratingProjectStories] = useState(false);
@@ -91,8 +96,12 @@ export default function PagesView({
   // Nuevos estados para el modal de resultados
   const [showResultModal, setShowResultModal] = useState(false);
   const [generatedStoriesResult, setGeneratedStoriesResult] = useState<any>(null);
+  
+  // ✅ Estados para PopupExecutePrompts global
+  const [isExecutePromptsOpen, setIsExecutePromptsOpen] = useState(false);
+  const [allProjectUserStories, setAllProjectUserStories] = useState<UserStory[]>([]);
+  
   const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (containerRef.current) {
       gsap.fromTo(containerRef.current.children, 
@@ -101,6 +110,63 @@ export default function PagesView({
       );
     }
   }, [currentProject]);
+
+    // ✅ Función para abrir PopupExecutePrompts con todas las user stories
+  // ✅ Función modificada para ejecutar solo las user stories marcadas
+  const handleExecuteAllProjectStories = () => {
+    if (!currentProject?.pages) return;
+    
+    // Recopilar solo las user stories marcadas de todas las páginas
+    const markedStories: UserStory[] = []; // ✅ Cambiar nombre para evitar conflicto
+    currentProject.pages.forEach((page: AppPage) => {
+      if (page.userStories && page.userStories.length > 0) {
+        // Filtrar solo las historias marcadas como completadas
+        const completedInPage = page.userStories.filter((story: UserStory) => 
+          completedStories.has(story.id) // ✅ Usar el Set del estado, no el array local
+        );
+        
+        if (completedInPage.length > 0) {
+          // Agregar contexto de página a cada user story marcada
+          const storiesWithContext = completedInPage.map((story: UserStory) => ({
+            ...story,
+            pageContext: page.name // Agregar el nombre de la página como contexto
+          }));
+          markedStories.push(...storiesWithContext); // ✅ Usar el nuevo nombre
+        }
+      }
+    });
+    
+    if (markedStories.length === 0) { // ✅ Usar el nuevo nombre
+      alert('No hay user stories marcadas en el proyecto para ejecutar.');
+      return;
+    }
+    
+    setAllProjectUserStories(markedStories); // ✅ Usar el nuevo nombre
+    setIsExecutePromptsOpen(true);
+    
+    console.log(`Abriendo popup de ejecución global con ${markedStories.length} user stories marcadas de ${currentProject.pages.length} páginas`); // ✅ Usar el nuevo nombre
+  };
+  
+  // ✅ Función para cerrar PopupExecutePrompts
+  const handleCloseExecutePrompts = () => {
+    setIsExecutePromptsOpen(false);
+    setAllProjectUserStories([]);
+  };
+  
+  // ✅ Función para ejecutar una user story específica
+  const handleExecuteStory = (storyId: string) => {
+    console.log(`Ejecutando user story: ${storyId}`);
+    // Aquí puedes agregar la lógica para ejecutar una historia específica
+  };
+  
+  // ✅ Función para ejecutar todas las user stories
+  const handleExecuteAllStories = () => {
+    console.log(`Ejecutando todas las ${allProjectUserStories.length} user stories del proyecto`);
+    // Aquí puedes agregar la lógica para ejecutar todas las historias
+    if (onExecuteAllProjectStories) {
+      onExecuteAllProjectStories();
+    }
+  };
 
   const handleToggleComplete = (pageId: string, userStoryId: string, completed: boolean) => {
     setCompletedStories(prev => {
@@ -234,6 +300,25 @@ export default function PagesView({
   return (
     <>
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-8 pb-8 text-white font-sans px-4 sm:px-0" ref={containerRef}>
+        {/* ✅ Nuevo botón global para ejecutar todas las user stories */}
+        {currentProject.pages.length > 0 && (
+          <div className="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-lg backdrop-blur-md p-4 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-white mb-2">Ejecutar User Stories Marcadas</h3>
+                <p className="text-slate-400 text-sm">Ejecuta solo las user stories marcadas como completadas del proyecto en un solo popup con prompts generados automáticamente</p>
+              </div>
+              <button
+                onClick={handleExecuteAllProjectStories}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg transition-all duration-200 text-white font-medium text-sm whitespace-nowrap"
+              >
+                <Play className="h-4 w-4" />
+                <span>Ejecutar User Stories Marcadas</span>
+              </button>
+            </div>
+          </div>
+        )}
+        
         {/* Botón para generar historias de usuario para todo el proyecto */}
         {currentProject.pages.length > 0 && (
           <div className="bg-slate-900/60 border border-slate-800 rounded-2xl shadow-lg backdrop-blur-md p-4 sm:p-6">
@@ -394,9 +479,26 @@ export default function PagesView({
           totalStories={generatedStoriesResult.totalStories}
           metadata={generatedStoriesResult.metadata}
           projectId={currentProject.id}
-          pageId={generatedStoriesResult.pageId} // ✅ Pasar pageId como prop
+          pageId={generatedStoriesResult.pageId}
         />
       )}
+      
+      {/* ✅ PopupExecutePrompts global */}
+      <PopupExecutePrompts
+        isOpen={isExecutePromptsOpen}
+        onClose={handleCloseExecutePrompts}
+        page={{
+          id: 'all-project',
+          title: `Proyecto: ${currentProject.name}`,
+          name: `Proyecto: ${currentProject.name}`,
+          description: `Todas las user stories del proyecto ${currentProject.name}`,
+          route: '/project'
+        } as AppPage}
+        userStories={allProjectUserStories}
+        selectedUserStoryIds={[]} // Sin selección específica, mostrar todas
+        onExecuteStory={handleExecuteStory}
+        onExecuteAll={handleExecuteAllStories}
+      />
     </>
   );
 }

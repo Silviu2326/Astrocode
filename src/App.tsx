@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ProjectProvider } from './context/ProjectContext';
 import Header from './components/Header';
@@ -9,7 +9,7 @@ import ProjectEdit from './pages/ProjectEdit';
 import ConfiguracionPage from './pages/ConfiguracionPage';
 import PerfilPage from './pages/PerfilPage';
 
-function AppContent() {
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -24,23 +24,73 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <LoginForm />;
+    return <Navigate to="/login" replace />;
   }
 
+  return <>{children}</>;
+}
+
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <ProjectProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Header />
-          <Routes>
-            <Route path="/" element={<ProjectList />} />
-            <Route path="/project/:id" element={<ProjectEdit />} />
-            <Route path="/configuracion" element={<ConfiguracionPage />} />
-            <Route path="/perfil" element={<PerfilPage />} />
-          </Routes>
-        </div>
-      </Router>
-    </ProjectProvider>
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        <Routes>
+          <Route 
+            path="/login" 
+            element={
+              isAuthenticated ? <Navigate to="/listadodeproyectos" replace /> : <LoginForm />
+            } 
+          />
+          <Route 
+            path="/listadodeproyectos" 
+            element={
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Header />
+                  <ProjectList />
+                </ProjectProvider>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/project/:id" 
+            element={
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Header />
+                  <ProjectEdit />
+                </ProjectProvider>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/configuracion" 
+            element={
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Header />
+                  <ConfiguracionPage />
+                </ProjectProvider>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/perfil" 
+            element={
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Header />
+                  <PerfilPage />
+                </ProjectProvider>
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/" element={<Navigate to="/listadodeproyectos" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

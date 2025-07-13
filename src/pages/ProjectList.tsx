@@ -6,6 +6,7 @@ import NewProjectModal from '../components/NewProjectModal';
 import EditarProjectoPopup from '../components/EditarProjectoPopup';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
+import IAPanel from '../components/IAPanel';
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Todos' },
@@ -167,6 +168,12 @@ export default function ProjectList() {
         onClose={handleCloseEditModal}
         project={selectedProject}
       />
+      
+      {/* Mover IAPanel aquí, fuera de ProjectGrid */}
+      <IAPanel 
+        dispatch={dispatch}
+        openModal={() => dispatch({ type: 'SET_MODAL_OPEN', payload: true })}
+      />
     </div>
   );
 }
@@ -299,6 +306,7 @@ const ProjectGrid = ({ projects, viewMode, onEdit }) => {
           <ProjectCard project={project} viewMode={viewMode} />
         </div>
       ))}
+      {/* Remover IAPanel de aquí */}
     </div>
   );
 };

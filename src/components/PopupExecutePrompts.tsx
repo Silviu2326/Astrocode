@@ -196,86 +196,90 @@ ${prompts.join('\n')}
   };
 
   const generatePrompt = (story: UserStory) => {
-    let prompt = `# User Story: ${story.title}\n\n`;
-    prompt += `## Descripción\n${story.description}\n\n`;
-    
-    if (story.pageContext) {
-      prompt += `## Contexto de la Página\n${story.pageContext}\n\n`;
-    }
-    
-    if (story.affectedFiles && story.affectedFiles.length > 0) {
-      prompt += `## Archivos Afectados\n`;
-      story.affectedFiles.forEach(file => {
-        prompt += `- @${file}\n`;
-      });
-      prompt += `\n`;
-    }
-    
-    if (story.componentsModules) {
-      if (story.componentsModules.create && story.componentsModules.create.length > 0) {
-        prompt += `## Componentes a Crear\n`;
-        story.componentsModules.create.forEach(comp => {
-          prompt += `- ${comp.name} (${comp.type})\n`;
-        });
-        
-        // Agregar información sobre la carpeta de destino
-        const pageName = story.pageContext ? story.pageContext.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : 'pagina';
-        prompt += `\n los Componentes a crear se deben crear en la carpeta src/features/${pageName}/components\n\n`;
+      let prompt = `# User Story: ${story.title}\n\n`;
+      prompt += `## Descripción\n${story.description}\n\n`;
+      
+      if (story.pageContext) {
+        prompt += `## Contexto de la Página\n${story.pageContext}\n\n`;
       }
       
-      if (story.componentsModules.import && story.componentsModules.import.length > 0) {
-        prompt += `## Módulos a Importar\n`;
-        story.componentsModules.import.forEach(imp => {
-          prompt += `- ${imp.name} from ${imp.from}\n`;
+      if (story.affectedFiles && story.affectedFiles.length > 0) {
+        prompt += `## Archivos Afectados\n`;
+        story.affectedFiles.forEach(file => {
+          prompt += `- @${file}\n`;
         });
         prompt += `\n`;
       }
-    }
-    
-    if (story.logicData) {
-      prompt += `## Lógica y Datos\n${story.logicData}\n\n`;
-    }
-    
-    if (story.styling) {
-      prompt += `## Estilos\n`;
-      prompt += `IMPORTANTE: Revisar el @tailwind.config.js y usar esos colores definidos en la configuración.\n\n`;
-    }
-    
-    if (story.acceptanceCriteria && story.acceptanceCriteria.length > 0) {
-      prompt += `## Criterios de Aceptación\n`;
-      story.acceptanceCriteria.forEach((criteria, index) => {
-        prompt += `${index + 1}. ${criteria}\n`;
-      });
-      prompt += `\n`;
-    }
-    
-    if (story.additionalSuggestions && story.additionalSuggestions.length > 0) {
-      prompt += `## Sugerencias Adicionales\n`;
-      story.additionalSuggestions.forEach(suggestion => {
-        prompt += `- ${suggestion}\n`;
-      });
-      prompt += `\n`;
-    }
-    
-    if (story.aiEditorTask) {
-      prompt += `## Tarea para Editor IA\n${story.aiEditorTask}\n\n`;
-    }
-    
-    // Agregar restricción de carpeta al final
-    if (story.affectedFiles && story.affectedFiles.length > 0) {
-      // Extraer la carpeta del primer archivo afectado
-      const firstFile = story.affectedFiles[0];
-      const folderMatch = firstFile.match(/^(.*\/[^\/]+)\//);
       
-      if (folderMatch) {
-        const folderPath = folderMatch[1];
-        prompt += `\n## RESTRICCIÓN IMPORTANTE\n`;
-        prompt += `PROHIBIDO TOCAR ARCHIVOS QUE NO SEAN DE LA CARPETA @${folderPath}\n`;
+      if (story.componentsModules) {
+        if (story.componentsModules.create && story.componentsModules.create.length > 0) {
+          prompt += `## Componentes a Crear\n`;
+          story.componentsModules.create.forEach(comp => {
+            prompt += `- ${comp.name} (${comp.type})\n`;
+          });
+          
+          // Agregar información sobre la carpeta de destino
+          const pageName = story.pageContext ? story.pageContext.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : 'pagina';
+          prompt += `\n los Componentes a crear se deben crear en la carpeta src/features/${pageName}/components\n\n`;
+        }
+        
+        if (story.componentsModules.import && story.componentsModules.import.length > 0) {
+          prompt += `## Módulos a Importar\n`;
+          story.componentsModules.import.forEach(imp => {
+            prompt += `- ${imp.name} from ${imp.from}\n`;
+          });
+          prompt += `\n`;
+        }
       }
-    }
-    
-    return prompt;
-  };
+      
+      if (story.logicData) {
+        prompt += `## Lógica y Datos\n${story.logicData}\n\n`;
+      }
+      
+      if (story.styling) {
+        prompt += `## Estilos\n`;
+        prompt += `IMPORTANTE: Revisar el @tailwind.config.js y usar esos colores definidos en la configuración.\n\n`;
+      }
+      
+      if (story.acceptanceCriteria && story.acceptanceCriteria.length > 0) {
+        prompt += `## Criterios de Aceptación\n`;
+        story.acceptanceCriteria.forEach((criteria, index) => {
+          prompt += `${index + 1}. ${criteria}\n`;
+        });
+        prompt += `\n`;
+      }
+      
+      if (story.additionalSuggestions && story.additionalSuggestions.length > 0) {
+        prompt += `## Sugerencias Adicionales\n`;
+        story.additionalSuggestions.forEach(suggestion => {
+          prompt += `- ${suggestion}\n`;
+        });
+        prompt += `\n`;
+      }
+      
+      if (story.aiEditorTask) {
+        prompt += `## Tarea para Editor IA\n${story.aiEditorTask}\n\n`;
+      }
+      
+      // Agregar restricción de carpeta al final
+      if (story.affectedFiles && story.affectedFiles.length > 0) {
+        // Extraer la carpeta del primer archivo afectado
+        const firstFile = story.affectedFiles[0];
+        const folderMatch = firstFile.match(/^(.*\/[^\/]+)\//); 
+        
+        if (folderMatch) {
+          const folderPath = folderMatch[1];
+          prompt += `\n## RESTRICCIÓN IMPORTANTE\n`;
+          prompt += `PROHIBIDO TOCAR ARCHIVOS QUE NO SEAN DE LA CARPETA @${folderPath}\n`;
+        }
+      }
+      
+      // Agregar instrucciones adicionales al final
+      prompt += `\n## INSTRUCCIONES ADICIONALES\n`;
+      prompt += `NO HAGAS TEST, NO EJECUTES NPM RUN DEV, SOLO CREA EL COMPONENTE Y INTEGRALO EN LA PAGINA\n`;
+      
+      return prompt;
+    };
 
   const copyPrompt = async (story: UserStory) => {
     try {

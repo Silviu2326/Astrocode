@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://web-production-d430.up.railway.app/api';
+const API_BASE_URL = 'http://localhost:3001/api';
 
 // Función para hacer peticiones autenticadas
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
@@ -324,6 +324,131 @@ export const projectService = {
     return apiRequest(`/projects/${projectId}/pages/${pageId}/generate-user-stories-personal`, {
       method: 'POST',
       body: JSON.stringify(data)
+    });
+  },
+  // Nueva función para añadir paleta de colores
+  addColorPalette: async (projectId: string, colorPaletteData: {
+    name?: string;
+    description?: string;
+    primary?: {
+      main?: string;
+      light?: string;
+      dark?: string;
+      contrastText?: string;
+    };
+    secondary?: {
+      main?: string;
+      light?: string;
+      dark?: string;
+      contrastText?: string;
+    };
+    accent?: {
+      main?: string;
+      light?: string;
+      dark?: string;
+      contrastText?: string;
+    };
+    background?: {
+      primary?: string;
+      secondary?: string;
+      paper?: string;
+      default?: string;
+    };
+    text?: {
+      primary?: string;
+      secondary?: string;
+      disabled?: string;
+      hint?: string;
+    };
+    status?: {
+      success?: string;
+      warning?: string;
+      error?: string;
+      info?: string;
+    };
+    utility?: {
+      border?: string;
+      divider?: string;
+      shadow?: string;
+      overlay?: string;
+    };
+    gradients?: {
+      primary?: string;
+      secondary?: string;
+      accent?: string;
+    };
+    customColors?: Array<{
+      name: string;
+      value: string;
+      description?: string;
+    }>;
+  }) => {
+    return apiRequest(`/projects/${projectId}/color-palette`, {
+      method: 'POST',
+      body: JSON.stringify(colorPaletteData),
+    });
+  },
+
+  // Nueva función para actualizar paleta de colores
+  updateColorPalette: async (projectId: string, colorPaletteData: {
+    name?: string;
+    description?: string;
+    primary?: {
+      main?: string;
+      light?: string;
+      dark?: string;
+      contrastText?: string;
+    };
+    secondary?: {
+      main?: string;
+      light?: string;
+      dark?: string;
+      contrastText?: string;
+    };
+    accent?: {
+      main?: string;
+      light?: string;
+      dark?: string;
+      contrastText?: string;
+    };
+    background?: {
+      primary?: string;
+      secondary?: string;
+      paper?: string;
+      default?: string;
+    };
+    text?: {
+      primary?: string;
+      secondary?: string;
+      disabled?: string;
+      hint?: string;
+    };
+    status?: {
+      success?: string;
+      warning?: string;
+      error?: string;
+      info?: string;
+    };
+    utility?: {
+      border?: string;
+      divider?: string;
+      shadow?: string;
+      overlay?: string;
+    };
+    gradients?: {
+      primary?: string;
+      secondary?: string;
+      accent?: string;
+    };
+    customColors?: Array<{
+      name: string;
+      value: string;
+      description?: string;
+    }>;
+  }) => {
+    return apiRequest(`/projects/${projectId}/color-palette`, {
+      method: 'PUT',
+      body: JSON.stringify(colorPaletteData),
     });
   },
 };

@@ -22,6 +22,7 @@ import EstudiodemercadoView from '../components/views/EstudiodemercadoView';
 import VistaNodosView from '../components/views/VistaNodosView';
 import VistaBackendView from '../components/views/VistaBackendView';
 import VistaDocumentosView from '../components/views/VistaDocumentosView';
+import IAPanel from '../components/IAPanel';
 
 type ViewMode = 'kanban' | 'pages' | 'structure' | 'timeline' | 'dependencies' | 'estudio-mercado' | 'vistanodos' | 'vista-backend' | 'vista-documentos';
 
@@ -114,8 +115,6 @@ export default function ProjectEdit() {
   const [selectedPageForDescriptionEdit, setSelectedPageForDescriptionEdit] = useState<AppPage | null>(null);
   const [draggedPage, setDraggedPage] = useState<AppPage | null>(null);
   const [pageWeekAssignments, setPageWeekAssignments] = useState<{[pageId: string]: string}>({});
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [sidebarTab, setSidebarTab] = useState<'activity' | 'logs'>('activity');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isColorsModalOpen, setIsColorsModalOpen] = useState(false);
   const [isComponentsModalOpen, setIsComponentsModalOpen] = useState(false);
@@ -136,39 +135,17 @@ export default function ProjectEdit() {
   const [userStoriesForExecution, setUserStoriesForExecution] = useState<UserStory[]>([]);
   const [selectedUserStoryIds, setSelectedUserStoryIds] = useState<string[]>([]);
 
-  const activityFeed = [
-    { id: '1', type: 'commit', title: 'feat: Add user authentication', description: 'Implemented JWT-based authentication system', author: 'John Doe', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), icon: GitBranch, color: 'text-green-400' },
-    { id: '2', type: 'pr', title: 'Pull Request #42: Update dashboard UI', description: 'Merged changes to improve dashboard responsiveness', author: 'Jane Smith', timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), icon: Code, color: 'text-blue-400' },
-    { id: '3', type: 'comment', title: 'Comment on issue #15', description: 'Suggested improvements for the login flow', author: 'Mike Johnson', timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), icon: MessageSquare, color: 'text-yellow-400' }
-  ];
-
-  const agentLogs = [
-    { id: '1', agent: 'FE-Logic', action: 'Generated component', target: 'UserProfile.tsx', status: 'completed', timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000), details: 'Created React component with TypeScript interfaces', icon: FileCode, color: 'text-green-400' },
-    { id: '2', agent: 'BE-Draft', action: 'Created API endpoint', target: '/api/users/profile', status: 'completed', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), details: 'Generated Express.js route with validation middleware', icon: Terminal, color: 'text-blue-400' },
-    { id: '3', agent: 'Static-Scan', action: 'Code analysis', target: 'src/components/', status: 'in-progress', timestamp: new Date(Date.now() - 30 * 60 * 1000), details: 'Scanning for potential security vulnerabilities', icon: Bot, color: 'text-yellow-400' }
-  ];
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth < 768) {
-        setIsSidebarOpen(false);
-      }
     };
     
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const formatTimeAgo = (date: Date) => {
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
-    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
-    return `${Math.floor(diffInMinutes / 1440)}d ago`;
-  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -678,7 +655,7 @@ const handleCopyPrompt = async () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 flex overflow-hidden font-sans">
-      <main className={`flex-1 transition-all duration-500 ease-in-out ${isSidebarOpen ? 'mr-80' : 'mr-0'}`}>
+      <main className="flex-1">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 h-full flex flex-col">
           
           <motion.header className="mb-8" variants={itemVariants}>
@@ -873,7 +850,10 @@ const handleCopyPrompt = async () => {
             >
               {viewMode === 'structure' && <StructureView currentProject={currentProject} fileStats={fileStats} handleEditFile={handleEditFile} handleDeleteFile={handleDeleteFile} handleAddChildFile={handleAddChildFile} setIsFileModalOpen={setIsFileModalOpen} />}
               {viewMode === 'kanban' && <KanbanView currentProject={currentProject} userStoryColumns={userStoryColumns} getUserStoriesByStatus={getUserStoriesByStatus} handleDragOver={handleDragOver} handleDrop={handleDrop} handleDragStart={handleDragStart} openUserStoryModal={openUserStoryModal} handleOpenIaGenerateModal={handleOpenIaGenerateModal} handleOpenEditPageDescriptionModal={handleOpenEditPageDescriptionModal} handleEditUserStory={handleEditUserStory} handleDeleteUserStory={handleDeleteUserStory} handleToggleUserStoryComplete={handleToggleUserStoryComplete} setIsPageModalOpen={setIsPageModalOpen} />}
-              {viewMode === 'pages' && <PagesView currentProject={currentProject} userStoryColumns={userStoryColumns} getUserStoriesByStatus={getUserStoriesByStatus} handleDragOver={handleDragOver} handleDrop={handleDrop} handleDragStart={handleDragStart} openUserStoryModal={openUserStoryModal} handleOpenIaGenerateModal={handleOpenIaGenerateModal} handleOpenEditPageDescriptionModal={handleOpenEditPageDescriptionModal} handleEditUserStory={handleEditUserStory} handleDeleteUserStory={handleDeleteUserStory} handleToggleUserStoryComplete={handleToggleUserStoryComplete} onExecuteCompletedStories={handleExecuteCompletedStories} setIsPageModalOpen={setIsPageModalOpen} handleEditPage={handleEditPage} />}
+              {viewMode === 'pages' && <PagesView currentProject={currentProject} userStoryColumns={userStoryColumns} getUserStoriesByStatus={getUserStoriesByStatus} handleDragOver={handleDragOver} handleDrop={handleDrop} handleDragStart={handleDragStart} openUserStoryModal={openUserStoryModal} handleOpenIaGenerateModal={handleOpenIaGenerateModal} handleOpenEditPageDescriptionModal={handleOpenEditPageDescriptionModal} handleEditUserStory={handleEditUserStory} handleDeleteUserStory={handleDeleteUserStory} handleToggleUserStoryComplete={handleToggleUserStoryComplete} onExecuteCompletedStories={handleExecuteCompletedStories} setIsPageModalOpen={setIsPageModalOpen} handleEditPage={handleEditPage} onExecuteAllProjectStories={() => {
+        // Función para manejar la ejecución global desde ProjectEdit
+        console.log('Ejecutando todas las user stories del proyecto desde ProjectEdit');
+      }} />}
               {viewMode === 'vistanodos' && <VistaNodosView currentProject={currentProject} userStoryColumns={userStoryColumns} getUserStoriesByStatus={getUserStoriesByStatus} handleDragOver={handleDragOver} handleDrop={handleDrop} handleDragStart={handleDragStart} openUserStoryModal={openUserStoryModal} handleOpenIaGenerateModal={handleOpenIaGenerateModal} handleEditUserStory={handleEditUserStory} handleDeleteUserStory={handleDeleteUserStory} handleToggleUserStoryComplete={handleToggleUserStoryComplete} onExecuteCompletedStories={handleExecuteCompletedStories} setIsPageModalOpen={setIsPageModalOpen} handleEditPage={handleEditPage} />}
               {viewMode === 'timeline' && <TimelineView currentProject={currentProject} weeks={weeks} pageWeekAssignments={pageWeekAssignments} handleTimelineDragOver={handleTimelineDragOver} handleTimelineDrop={handleTimelineDrop} handleTimelineDragStart={handleTimelineDragStart} />}
               {viewMode === 'dependencies' && <DependenciesView dependencyData={dependencyData} />}
@@ -1045,105 +1025,6 @@ const handleCopyPrompt = async () => {
         )}
       </AnimatePresence>
 
-      <motion.button 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
-        className={`fixed top-1/2 -translate-y-1/2 z-50 bg-slate-800/50 border border-slate-700 rounded-l-lg p-2 transition-all duration-500 hover:bg-slate-700 ${isSidebarOpen ? 'right-80' : 'right-0'}`}
-      >
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={isSidebarOpen ? 'open' : 'closed'}
-            initial={{ rotate: -180, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            exit={{ rotate: 180, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {isSidebarOpen ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
-          </motion.div>
-        </AnimatePresence>
-      </motion.button>
-
-      <AnimatePresence>
-        {isSidebarOpen && (
-          <motion.aside 
-            className="fixed top-0 right-0 h-full w-80 bg-slate-900/50 backdrop-blur-xl border-l border-slate-800 z-40"
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-          >
-            <div className="flex flex-col h-full">
-              <div className="p-4 border-b border-slate-800">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold flex items-center gap-2"><Activity className="h-5 w-5" /><span>Panel Actividad</span></h2>
-                  <button onClick={() => setIsSidebarOpen(false)} className="text-slate-400 hover:text-white"><X className="h-5 w-5" /></button>
-                </div>
-                <div className="flex gap-1 bg-slate-800/50 rounded-lg p-1">
-                  <button onClick={() => setSidebarTab('activity')} className={`flex-1 py-2 text-sm rounded-md flex items-center justify-center gap-2 ${sidebarTab === 'activity' ? 'bg-slate-700' : 'hover:bg-slate-700/50'}`}><Activity className="h-4 w-4" /><span>Feed</span></button>
-                  <button onClick={() => setSidebarTab('logs')} className={`flex-1 py-2 text-sm rounded-md flex items-center justify-center gap-2 ${sidebarTab === 'logs' ? 'bg-slate-700' : 'hover:bg-slate-700/50'}`}><Bot className="h-4 w-4" /><span>Logs</span></button>
-                </div>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={sidebarTab}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {sidebarTab === 'activity' ? (
-                      activityFeed.map(item => {
-                        const Icon = item.icon;
-                        return (
-                          <div key={item.id} className="bg-slate-800/70 p-3 rounded-lg border border-slate-700/50">
-                            <div className="flex gap-3">
-                              <Icon className={`h-5 w-5 mt-1 flex-shrink-0 ${item.color}`} />
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-slate-200">{item.title}</p>
-                                <p className="text-xs text-slate-400 mt-1">{item.description}</p>
-                                <div className="flex justify-between mt-2 text-xs text-slate-500">
-                                  <span>by {item.author}</span>
-                                  <span>{formatTimeAgo(item.timestamp)}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      agentLogs.map(log => {
-                        const Icon = log.icon;
-                        return (
-                          <div key={log.id} className="bg-slate-800/70 p-3 rounded-lg border border-slate-700/50">
-                            <div className="flex gap-3">
-                              <Icon className={`h-5 w-5 mt-1 flex-shrink-0 ${log.color}`} />
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-sm font-medium text-slate-200">{log.agent}</span>
-                                  <span className={`px-2 py-0.5 text-xs rounded-full ${log.status === 'completed' ? 'bg-green-900/50 text-green-300' : 'bg-yellow-900/50 text-yellow-300'}`}>{log.status}</span>
-                                </div>
-                                <p className="text-xs text-slate-300">{log.action}: <code className="bg-slate-900/50 px-1 rounded">{log.target}</code></p>
-                                <p className="text-xs text-slate-400 mt-1">{log.details}</p>
-                                <span className="text-xs text-slate-500 mt-2 block">{formatTimeAgo(log.timestamp)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-              <div className="p-4 border-t border-slate-800 text-xs text-slate-600 text-center">
-                Contexto en tiempo real
-              </div>
-            </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
-
       <PopupExecutePrompts
         isOpen={isExecutePromptsOpen}
         onClose={handleCloseExecutePrompts}
@@ -1154,13 +1035,39 @@ const handleCopyPrompt = async () => {
         onExecuteAll={handleExecuteAllStories}
       />
       
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      <ColorsModal isOpen={isColorsModalOpen} onClose={() => setIsColorsModalOpen(false)} project={currentProject || undefined} onSave={async (colorTheme: string[]) => { if (currentProject) await updateProject(currentProject.id, { colorTheme }); }} />
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
+        projectPages={currentProject?.pages || []} // ✅ Pasar las páginas del proyecto
+      />
+      <ColorsModal 
+        isOpen={isColorsModalOpen} 
+        onClose={() => setIsColorsModalOpen(false)} 
+        projectId={currentProject?.id} 
+        onSave={async (colorTheme: string[]) => { 
+          if (currentProject) await updateProject(currentProject.id, { colorTheme }); 
+        }} 
+      />
       <ComponentsModal isOpen={isComponentsModalOpen} onClose={() => setIsComponentsModalOpen(false)} />
       {isGeneracionCompletaPopupOpen && <GeneracionCompletaPopup onClose={() => setIsGeneracionCompletaPopupOpen(false)} />}
+<IAPanel 
+  projectEditSetters={{
+    setIsPageModalOpen,
+    setIsUserStoryModalOpen,
+    setIsFileModalOpen,
+    setViewMode,
+    setIsIaGenerateModalOpen,
+    setIsGeneracionCompletaPopupOpen,
+    setIsEditingProject,
+    setEditingProjectData,
+    setIsAuthModalOpen,
+    setIsColorsModalOpen,
+    setIsComponentsModalOpen
+  }}
+  currentProject={currentProject}
+  viewMode={viewMode}
+/>
     </div>
   );
 }
 
-
-// Agregar el manejador para generar prompt inicial

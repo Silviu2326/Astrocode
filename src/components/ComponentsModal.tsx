@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Package, Code, Copy, Plus, Trash2, Edit3, Layers, Save, Search, Download, Upload } from 'lucide-react';
+import { X, Package, Code, Copy, Plus, Trash2, Edit3, Layers, Save, Search, Download, Upload, Sidebar, Square, Table } from 'lucide-react';
 
 interface ComponentsModalProps {
   isOpen: boolean;
@@ -35,7 +35,7 @@ interface ComponentProp {
 const STORAGE_KEY = 'reusable-components';
 
 export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('buttons');
+  const [selectedCategory, setSelectedCategory] = useState<string>('sidebar');
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -44,18 +44,16 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
   
   const [newComponent, setNewComponent] = useState<Partial<Component>>({
     name: '',
-    category: 'buttons',
+    category: 'sidebar',
     description: '',
     variants: [],
     props: []
   });
 
   const categories = [
-    { id: 'buttons', name: 'Botones', icon: Package },
-    { id: 'forms', name: 'Formularios', icon: Edit3 },
-    { id: 'layout', name: 'Layout', icon: Layers },
-    { id: 'navigation', name: 'Navegación', icon: Code },
-    { id: 'feedback', name: 'Feedback', icon: Copy }
+    { id: 'sidebar', name: 'Sidebar', icon: Sidebar },
+    { id: 'button', name: 'Button', icon: Square },
+    { id: 'table', name: 'Table', icon: Table }
   ];
 
   const [components, setComponents] = useState<Component[]>([]);
@@ -77,15 +75,29 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsedComponents = JSON.parse(saved);
-        setComponents(parsedComponents);
+        // Verificar que los datos sean válidos
+        if (Array.isArray(parsedComponents) && parsedComponents.length > 0) {
+          setComponents(parsedComponents);
+        } else {
+          // Si los datos no son válidos, usar componentes iniciales
+          const initialComponents = getInitialComponents();
+          setComponents(initialComponents);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(initialComponents));
+        }
       } else {
         // Inicializar con componentes mock si no hay datos guardados
-        setComponents(getInitialComponents());
+        const initialComponents = getInitialComponents();
+        setComponents(initialComponents);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(initialComponents));
       }
     } catch (error) {
       console.error('Error loading components:', error);
       showNotification('error', 'Error al cargar componentes');
-      setComponents(getInitialComponents());
+      // Limpiar localStorage corrupto y usar componentes iniciales
+      localStorage.removeItem(STORAGE_KEY);
+      const initialComponents = getInitialComponents();
+      setComponents(initialComponents);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(initialComponents));
     }
   };
 
@@ -101,8 +113,42 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
   const getInitialComponents = (): Component[] => [
     {
       id: '1',
+      name: 'Sidebar',
+      category: 'sidebar',
+      description: 'Barra lateral de navegación reutilizable',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      variants: [
+        {
+          id: '1',
+          name: 'Default',
+          description: 'Sidebar básico',
+          code: `<div className="w-64 h-screen bg-slate-900 border-r border-slate-700 flex flex-col">\n  <div className="p-4 border-b border-slate-700">\n    <h2 className="text-white font-semibold">{title}</h2>\n  </div>\n  <nav className="flex-1 p-4">\n    {children}\n  </nav>\n</div>`
+        },
+        {
+          id: '2',
+          name: 'Collapsible',
+          description: 'Sidebar colapsable',
+          code: `<div className={\`h-screen bg-slate-900 border-r border-slate-700 flex flex-col transition-all duration-300 \${collapsed ? 'w-16' : 'w-64'}\`}>\n  <div className="p-4 border-b border-slate-700">\n    <button onClick={onToggle} className="text-white">\n      {collapsed ? '→' : '←'}\n    </button>\n    {!collapsed && <h2 className="text-white font-semibold mt-2">{title}</h2>}\n  </div>\n  <nav className="flex-1 p-4">\n    {children}\n  </nav>\n</div>`
+        },
+        {
+          id: '3',
+          name: 'Mini',
+          description: 'Sidebar compacto',
+          code: `<div className="w-16 h-screen bg-slate-900 border-r border-slate-700 flex flex-col">\n  <div className="p-2 border-b border-slate-700 text-center">\n    <div className="w-8 h-8 bg-blue-500 rounded-md mx-auto"></div>\n  </div>\n  <nav className="flex-1 p-2 space-y-2">\n    {children}\n  </nav>\n</div>`
+        }
+      ],
+      props: [
+        { name: 'title', type: 'string', required: true, description: 'Título del sidebar' },
+        { name: 'children', type: 'ReactNode', required: true, description: 'Contenido de navegación' },
+        { name: 'collapsed', type: 'boolean', required: false, defaultValue: 'false', description: 'Estado colapsado' },
+        { name: 'onToggle', type: 'function', required: false, description: 'Función para alternar colapso' }
+      ]
+    },
+    {
+      id: '2',
       name: 'Button',
-      category: 'buttons',
+      category: 'button',
       description: 'Botón reutilizable con múltiples variantes',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -111,19 +157,80 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
           id: '1',
           name: 'Primary',
           description: 'Botón principal',
-          code: `<button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors">\n  {children}\n</button>`
+          code: `<button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
         },
         {
           id: '2',
           name: 'Secondary',
           description: 'Botón secundario',
-          code: `<button className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors">\n  {children}\n</button>`
+          code: `<button className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+        },
+        {
+          id: '3',
+          name: 'Outline',
+          description: 'Botón con borde',
+          code: `<button className="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+        },
+        {
+          id: '4',
+          name: 'Ghost',
+          description: 'Botón transparente',
+          code: `<button className="text-blue-500 hover:bg-blue-500/10 px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+        },
+        {
+          id: '5',
+          name: 'Danger',
+          description: 'Botón de peligro',
+          code: `<button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
         }
       ],
       props: [
         { name: 'children', type: 'ReactNode', required: true, description: 'Contenido del botón' },
-        { name: 'variant', type: 'primary | secondary | outline', required: false, defaultValue: 'primary', description: 'Variante del botón' },
-        { name: 'disabled', type: 'boolean', required: false, defaultValue: 'false', description: 'Estado deshabilitado' }
+        { name: 'variant', type: 'primary | secondary | outline | ghost | danger', required: false, defaultValue: 'primary', description: 'Variante del botón' },
+        { name: 'disabled', type: 'boolean', required: false, defaultValue: 'false', description: 'Estado deshabilitado' },
+        { name: 'onClick', type: 'function', required: false, description: 'Función de click' },
+        { name: 'size', type: 'sm | md | lg', required: false, defaultValue: 'md', description: 'Tamaño del botón' }
+      ]
+    },
+    {
+      id: '3',
+      name: 'Table',
+      category: 'table',
+      description: 'Tabla reutilizable con funcionalidades básicas',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      variants: [
+        {
+          id: '1',
+          name: 'Basic',
+          description: 'Tabla básica',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-white border border-gray-200">\n    <thead className="bg-gray-50">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-white divide-y divide-gray-200">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+        },
+        {
+          id: '2',
+          name: 'Striped',
+          description: 'Tabla con filas alternadas',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-white border border-gray-200">\n    <thead className="bg-gray-50">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-white divide-y divide-gray-200">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+        },
+        {
+          id: '3',
+          name: 'Dark',
+          description: 'Tabla con tema oscuro',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-slate-800 border border-slate-700">\n    <thead className="bg-slate-900">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-slate-800 divide-y divide-slate-700">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-slate-200">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+        },
+        {
+          id: '4',
+          name: 'Compact',
+          description: 'Tabla compacta',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-white border border-gray-200">\n    <thead className="bg-gray-50">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-white divide-y divide-gray-200">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+        }
+      ],
+      props: [
+        { name: 'headers', type: 'string[]', required: true, description: 'Array de encabezados de columnas' },
+        { name: 'data', type: 'any[][]', required: true, description: 'Array bidimensional con los datos de la tabla' },
+        { name: 'striped', type: 'boolean', required: false, defaultValue: 'false', description: 'Filas alternadas' },
+        { name: 'dark', type: 'boolean', required: false, defaultValue: 'false', description: 'Tema oscuro' },
+        { name: 'compact', type: 'boolean', required: false, defaultValue: 'false', description: 'Estilo compacto' }
       ]
     }
   ];
@@ -226,7 +333,7 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
     const componentToSave: Component = {
       id: isEditing ? selectedComponent!.id : Date.now().toString(),
       name: newComponent.name.trim(),
-      category: newComponent.category || 'buttons',
+      category: newComponent.category || 'sidebar',
       description: newComponent.description || '',
       variants: newComponent.variants || [],
       props: newComponent.props || [],
@@ -422,151 +529,137 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6 overflow-y-auto">
-                  {filteredComponents.map((component) => (
-                    <div
-                      key={component.id}
-                      className={`p-4 rounded-lg border cursor-pointer transition-all ${
-                        selectedComponent?.id === component.id
-                          ? 'bg-blue-500/20 border-blue-400/50'
-                          : 'bg-white/5 border-white/20 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h5 
-                          className="font-medium text-white cursor-pointer"
-                          onClick={() => setSelectedComponent(component)}
-                        >
-                          {component.name}
-                        </h5>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-xs bg-green-500/20 text-green-300 px-2 py-1 rounded">
-                            {component.variants.length} variantes
-                          </span>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              editComponent(component);
-                            }}
-                            className="p-1 text-blue-300 hover:text-blue-200"
-                            title="Editar componente"
-                          >
-                            <Edit3 className="h-3 w-3" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              deleteComponent(component.id);
-                            }}
-                            className="p-1 text-red-300 hover:text-red-200"
-                            title="Eliminar componente"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </button>
+                <div className="flex flex-1 space-x-6 overflow-hidden">
+                  {/* Lista de componentes */}
+                  <div className="w-80 space-y-3 overflow-y-auto">
+                    {filteredComponents.map(component => (
+                      <div
+                        key={component.id}
+                        className={`p-4 rounded-lg border cursor-pointer transition-all ${
+                          selectedComponent?.id === component.id
+                            ? 'bg-green-500/20 border-green-400/50'
+                            : 'bg-white/5 border-white/20 hover:bg-white/10'
+                        }`}
+                        onClick={() => setSelectedComponent(component)}
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <h5 className="font-medium text-white">{component.name}</h5>
+                          <div className="flex space-x-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                editComponent(component);
+                              }}
+                              className="p-1 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10 rounded"
+                            >
+                              <Edit3 className="h-3 w-3" />
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                deleteComponent(component.id);
+                              }}
+                              className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-sm text-gray-400 mb-2">{component.description}</p>
+                        <div className="flex justify-between items-center text-xs text-gray-500">
+                          <span>{component.variants.length} variantes</span>
+                          <span>{component.props.length} props</span>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-300 mb-3">{component.description}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {component.variants.slice(0, 3).map((variant) => (
-                          <span
-                            key={variant.id}
-                            className="text-xs bg-white/10 text-gray-300 px-2 py-1 rounded"
-                          >
-                            {variant.name}
-                          </span>
-                        ))}
-                        {component.variants.length > 3 && (
-                          <span className="text-xs text-gray-400">+{component.variants.length - 3} más</span>
+                    ))}
+                  </div>
+
+                  {/* Detalles del componente */}
+                  <div className="flex-1 overflow-y-auto">
+                    {selectedComponent ? (
+                      <div className="space-y-6">
+                        {/* Header del componente */}
+                        <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+                          <h3 className="text-xl font-semibold text-white mb-2">{selectedComponent.name}</h3>
+                          <p className="text-gray-400 mb-4">{selectedComponent.description}</p>
+                          <div className="flex space-x-4 text-sm text-gray-500">
+                            <span>Creado: {new Date(selectedComponent.createdAt).toLocaleDateString()}</span>
+                            <span>Actualizado: {new Date(selectedComponent.updatedAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+
+                        {/* Props */}
+                        {selectedComponent.props.length > 0 && (
+                          <div className="bg-white/5 border border-white/20 rounded-lg p-4">
+                            <h4 className="text-lg font-medium text-white mb-3">Props</h4>
+                            <div className="space-y-3">
+                              {selectedComponent.props.map((prop, index) => (
+                                <div key={index} className="flex justify-between items-start">
+                                  <div>
+                                    <div className="flex items-center space-x-2">
+                                      <span className="font-mono text-blue-300">{prop.name}</span>
+                                      <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded">
+                                        {prop.type}
+                                      </span>
+                                      {prop.required && (
+                                        <span className="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded">
+                                          requerido
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-sm text-gray-400 mt-1">{prop.description}</p>
+                                    {prop.defaultValue && (
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        Por defecto: <span className="font-mono">{prop.defaultValue}</span>
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         )}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2">
-                        Actualizado: {new Date(component.updatedAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                  ))}
-                </div>
 
-                {/* Detalles del Componente Seleccionado */}
-                {selectedComponent && (
-                  <div className="flex-1 p-4 bg-white/5 rounded-lg border border-white/20 overflow-y-auto">
-                    <div className="flex justify-between items-center mb-4">
-                      <h5 className="text-lg font-medium text-white">{selectedComponent.name}</h5>
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => editComponent(selectedComponent)}
-                          className="flex items-center space-x-1 text-sm text-blue-300 hover:text-blue-200"
-                        >
-                          <Edit3 className="h-4 w-4" />
-                          <span>Editar</span>
-                        </button>
-                        <button
-                          onClick={() => copyToClipboard(JSON.stringify(selectedComponent, null, 2))}
-                          className="flex items-center space-x-1 text-sm text-green-300 hover:text-green-200"
-                        >
-                          <Copy className="h-4 w-4" />
-                          <span>Copiar JSON</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      {/* Variantes */}
-                      <div>
-                        <h6 className="text-sm font-medium text-gray-300 mb-3">Variantes ({selectedComponent.variants.length})</h6>
-                        <div className="space-y-3 max-h-64 overflow-y-auto">
-                          {selectedComponent.variants.map((variant) => (
-                            <div key={variant.id} className="p-3 bg-white/5 rounded border border-white/10">
-                              <div className="flex justify-between items-center mb-2">
-                                <span className="font-medium text-white">{variant.name}</span>
+                        {/* Variantes */}
+                        <div className="space-y-4">
+                          <h4 className="text-lg font-medium text-white">Variantes ({selectedComponent.variants.length})</h4>
+                          {selectedComponent.variants.map(variant => (
+                            <div key={variant.id} className="bg-white/5 border border-white/20 rounded-lg p-4">
+                              <div className="flex justify-between items-start mb-3">
+                                <div>
+                                  <h5 className="font-medium text-white">{variant.name}</h5>
+                                  <p className="text-sm text-gray-400">{variant.description}</p>
+                                </div>
                                 <button
                                   onClick={() => copyToClipboard(variant.code)}
-                                  className="text-xs text-blue-300 hover:text-blue-200"
+                                  className="flex items-center space-x-2 px-3 py-1 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded hover:bg-blue-500/30 transition-colors"
                                 >
                                   <Copy className="h-3 w-3" />
+                                  <span className="text-xs">Copiar</span>
                                 </button>
                               </div>
-                              <p className="text-xs text-gray-400 mb-2">{variant.description}</p>
-                              <pre className="text-xs bg-black/20 p-2 rounded overflow-x-auto">
-                                <code className="text-green-300">{variant.code}</code>
+                              <pre className="bg-black/30 p-3 rounded text-sm text-gray-300 overflow-x-auto">
+                                <code>{variant.code}</code>
                               </pre>
                             </div>
                           ))}
                         </div>
                       </div>
-
-                      {/* Props */}
-                      <div>
-                        <h6 className="text-sm font-medium text-gray-300 mb-3">Props ({selectedComponent.props.length})</h6>
-                        <div className="space-y-2 max-h-64 overflow-y-auto">
-                          {selectedComponent.props.map((prop, index) => (
-                            <div key={index} className="p-2 bg-white/5 rounded border border-white/10">
-                              <div className="flex items-center space-x-2 mb-1">
-                                <span className="font-medium text-white text-sm">{prop.name}</span>
-                                <span className="text-xs bg-blue-500/20 text-blue-300 px-1 rounded">
-                                  {prop.type}
-                                </span>
-                                {prop.required && (
-                                  <span className="text-xs bg-red-500/20 text-red-300 px-1 rounded">
-                                    requerido
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-xs text-gray-400">{prop.description}</p>
-                              {prop.defaultValue && (
-                                <p className="text-xs text-gray-500">Default: {prop.defaultValue}</p>
-                              )}
-                            </div>
-                          ))}
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400">
+                        <div className="text-center">
+                          <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>Selecciona un componente para ver sus detalles</p>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
-                )}
+                </div>
               </>
             ) : (
-              /* Modal de Creación/Edición */
-              <div className="flex-1 overflow-y-auto">
-                <div className="flex justify-between items-center mb-6">
+              /* Formulario de creación/edición */
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
                   <h4 className="text-lg font-medium text-white">
                     {isEditing ? 'Editar Componente' : 'Nuevo Componente'}
                   </h4>
@@ -576,17 +669,17 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
                       setIsEditing(false);
                       resetNewComponent();
                     }}
-                    className="text-gray-300 hover:text-white"
+                    className="text-gray-400 hover:text-white"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
-                <div className="space-y-6">
-                  {/* Información Básica */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Información básica */}
+                  <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Nombre *</label>
+                      <label className="block text-sm font-medium text-white mb-2">Nombre</label>
                       <input
                         type="text"
                         value={newComponent.name || ''}
@@ -595,119 +688,79 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
                         placeholder="Nombre del componente"
                       />
                     </div>
+
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Categoría</label>
+                      <label className="block text-sm font-medium text-white mb-2">Categoría</label>
                       <select
-                        value={newComponent.category || 'buttons'}
+                        value={newComponent.category || 'sidebar'}
                         onChange={(e) => setNewComponent(prev => ({ ...prev, category: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-400 [&>option]:bg-gray-800 [&>option]:text-white"
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-green-400"
                       >
                         {categories.map(cat => (
-                          <option key={cat.id} value={cat.id} className="bg-gray-800 text-white">{cat.name}</option>
+                          <option key={cat.id} value={cat.id} className="bg-slate-800">{cat.name}</option>
                         ))}
                       </select>
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Descripción</label>
-                    <textarea
-                      value={newComponent.description || ''}
-                      onChange={(e) => setNewComponent(prev => ({ ...prev, description: e.target.value }))}
-                      rows={3}
-                      className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
-                      placeholder="Descripción del componente"
-                    />
-                  </div>
+                    <div>
+                      <label className="block text-sm font-medium text-white mb-2">Descripción</label>
+                      <textarea
+                        value={newComponent.description || ''}
+                        onChange={(e) => setNewComponent(prev => ({ ...prev, description: e.target.value }))}
+                        className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 resize-none"
+                        placeholder="Descripción del componente"
+                        rows={3}
+                      />
+                    </div>
 
-                  {/* Variantes */}
-                  <div>
-                    <div className="flex justify-between items-center mb-3">
-                      <h6 className="text-sm font-medium text-gray-300">Variantes</h6>
-                      <button
-                        onClick={addNewVariant}
-                        className="flex items-center space-x-1 text-sm text-green-300 hover:text-green-200"
-                      >
-                        <Plus className="h-4 w-4" />
-                        <span>Añadir Variante</span>
-                      </button>
-                    </div>
-                    <div className="space-y-4 max-h-64 overflow-y-auto">
-                      {(newComponent.variants || []).map((variant) => (
-                        <div key={variant.id} className="p-4 bg-white/5 rounded border border-white/10">
-                          <div className="flex justify-between items-center mb-3">
-                            <input
-                              type="text"
-                              value={variant.name}
-                              onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
-                              className="flex-1 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm mr-2"
-                              placeholder="Nombre de la variante"
-                            />
-                            <button
-                              onClick={() => removeVariant(variant.id)}
-                              className="text-red-300 hover:text-red-200"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <input
-                            type="text"
-                            value={variant.description}
-                            onChange={(e) => updateVariant(variant.id, 'description', e.target.value)}
-                            className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm mb-2"
-                            placeholder="Descripción de la variante"
-                          />
-                          <textarea
-                            value={variant.code}
-                            onChange={(e) => updateVariant(variant.id, 'code', e.target.value)}
-                            rows={4}
-                            className="w-full px-2 py-1 bg-black/20 border border-white/20 rounded text-green-300 text-sm font-mono resize-none"
-                            placeholder="Código de la variante"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Props */}
-                  <div>
-                    <div className="flex justify-between items-center mb-3">
-                      <h6 className="text-sm font-medium text-gray-300">Props</h6>
-                      <button
-                        onClick={addNewProp}
-                        className="flex items-center space-x-1 text-sm text-green-300 hover:text-green-200"
-                      >
-                        <Plus className="h-4 w-4" />
-                        <span>Añadir Prop</span>
-                      </button>
-                    </div>
-                    <div className="space-y-3 max-h-48 overflow-y-auto">
-                      {(newComponent.props || []).map((prop, index) => (
-                        <div key={index} className="p-3 bg-white/5 rounded border border-white/10">
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2">
-                            <input
-                              type="text"
-                              value={prop.name}
-                              onChange={(e) => updateProp(index, 'name', e.target.value)}
-                              className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                              placeholder="Nombre"
-                            />
-                            <input
-                              type="text"
-                              value={prop.type}
-                              onChange={(e) => updateProp(index, 'type', e.target.value)}
-                              className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                              placeholder="Tipo"
-                            />
-                            <input
-                              type="text"
-                              value={prop.defaultValue || ''}
-                              onChange={(e) => updateProp(index, 'defaultValue', e.target.value)}
-                              className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                              placeholder="Valor por defecto"
-                            />
-                            <div className="flex items-center space-x-2">
-                              <label className="flex items-center space-x-1 text-sm text-gray-300">
+                    {/* Props */}
+                    <div>
+                      <div className="flex justify-between items-center mb-3">
+                        <label className="text-sm font-medium text-white">Props</label>
+                        <button
+                          onClick={addNewProp}
+                          className="flex items-center space-x-1 px-2 py-1 bg-green-500/20 text-green-300 border border-green-400/30 rounded text-xs hover:bg-green-500/30 transition-colors"
+                        >
+                          <Plus className="h-3 w-3" />
+                          <span>Agregar</span>
+                        </button>
+                      </div>
+                      <div className="space-y-3 max-h-60 overflow-y-auto">
+                        {(newComponent.props || []).map((prop, index) => (
+                          <div key={index} className="bg-white/5 border border-white/20 rounded p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 grid grid-cols-2 gap-2">
+                                <input
+                                  type="text"
+                                  value={prop.name}
+                                  onChange={(e) => updateProp(index, 'name', e.target.value)}
+                                  className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-xs"
+                                  placeholder="Nombre"
+                                />
+                                <input
+                                  type="text"
+                                  value={prop.type}
+                                  onChange={(e) => updateProp(index, 'type', e.target.value)}
+                                  className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-xs"
+                                  placeholder="Tipo"
+                                />
+                              </div>
+                              <button
+                                onClick={() => removeProp(index)}
+                                className="ml-2 p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 mb-2">
+                              <input
+                                type="text"
+                                value={prop.defaultValue || ''}
+                                onChange={(e) => updateProp(index, 'defaultValue', e.target.value)}
+                                className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-xs"
+                                placeholder="Valor por defecto"
+                              />
+                              <label className="flex items-center space-x-2 text-xs text-gray-300">
                                 <input
                                   type="checkbox"
                                   checked={prop.required}
@@ -716,46 +769,91 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
                                 />
                                 <span>Requerido</span>
                               </label>
-                              <button
-                                onClick={() => removeProp(index)}
-                                className="text-red-300 hover:text-red-200"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
                             </div>
+                            <textarea
+                              value={prop.description}
+                              onChange={(e) => updateProp(index, 'description', e.target.value)}
+                              className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-xs resize-none"
+                              placeholder="Descripción"
+                              rows={2}
+                            />
                           </div>
-                          <input
-                            type="text"
-                            value={prop.description}
-                            onChange={(e) => updateProp(index, 'description', e.target.value)}
-                            className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
-                            placeholder="Descripción"
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Variantes */}
+                  <div>
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="text-sm font-medium text-white">Variantes</label>
+                      <button
+                        onClick={addNewVariant}
+                        className="flex items-center space-x-1 px-2 py-1 bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded text-xs hover:bg-blue-500/30 transition-colors"
+                      >
+                        <Plus className="h-3 w-3" />
+                        <span>Agregar</span>
+                      </button>
+                    </div>
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {(newComponent.variants || []).map(variant => (
+                        <div key={variant.id} className="bg-white/5 border border-white/20 rounded p-3">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1 space-y-2">
+                              <input
+                                type="text"
+                                value={variant.name}
+                                onChange={(e) => updateVariant(variant.id, 'name', e.target.value)}
+                                className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                                placeholder="Nombre de la variante"
+                              />
+                              <input
+                                type="text"
+                                value={variant.description}
+                                onChange={(e) => updateVariant(variant.id, 'description', e.target.value)}
+                                className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm"
+                                placeholder="Descripción"
+                              />
+                            </div>
+                            <button
+                              onClick={() => removeVariant(variant.id)}
+                              className="ml-2 p-1 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                          <textarea
+                            value={variant.code}
+                            onChange={(e) => updateVariant(variant.id, 'code', e.target.value)}
+                            className="w-full px-3 py-2 bg-black/30 border border-white/20 rounded text-white font-mono text-sm resize-none"
+                            placeholder="Código JSX del componente"
+                            rows={6}
                           />
                         </div>
                       ))}
                     </div>
                   </div>
+                </div>
 
-                  {/* Botones de Acción */}
-                  <div className="flex justify-end space-x-3 pt-4 border-t border-white/20">
-                    <button
-                      onClick={() => {
-                        setIsCreating(false);
-                        setIsEditing(false);
-                        resetNewComponent();
-                      }}
-                      className="px-4 py-2 text-sm font-medium text-gray-300 bg-white/10 backdrop-blur-sm border border-white/30 rounded-md hover:bg-white/20 transition-colors"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      onClick={saveComponent}
-                      className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-green-500/20 backdrop-blur-sm border border-green-400/30 rounded-md hover:bg-green-500/30 transition-colors"
-                    >
-                      <Save className="h-4 w-4" />
-                      <span>{isEditing ? 'Actualizar' : 'Guardar'} Componente</span>
-                    </button>
-                  </div>
+                {/* Botones de acción */}
+                <div className="flex justify-end space-x-3 pt-4 border-t border-white/20">
+                  <button
+                    onClick={() => {
+                      setIsCreating(false);
+                      setIsEditing(false);
+                      resetNewComponent();
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-gray-300 bg-white/10 border border-white/30 rounded-md hover:bg-white/20 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={saveComponent}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white bg-green-500/20 border border-green-400/30 rounded-md hover:bg-green-500/30 transition-colors"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>{isEditing ? 'Actualizar' : 'Crear'} Componente</span>
+                  </button>
                 </div>
               </div>
             )}

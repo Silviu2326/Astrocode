@@ -1,13 +1,15 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Palette, Eye, Paintbrush, Plus, Copy, Star, Heart, Settings } from 'lucide-react';
+import { X, Palette, Eye, Paintbrush, Plus, Copy, Star, Heart, Settings, Save } from 'lucide-react';
 import { gsap } from 'gsap';
 import { ColorTheme, predefinedThemes } from '../types/colorThemes';
+import { projectService } from '../services/api';
 
 interface ColorsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave?: (newConfig: string) => void;
+  projectId?: string; // Nuevo prop para el ID del proyecto
 }
 
 interface ColorTheme {
@@ -64,11 +66,13 @@ interface ColorTheme {
   gradientEnd: string;
 }
 
-export default function ColorsModal({ isOpen, onClose, onSave }: ColorsModalProps) {
+export default function ColorsModal({ isOpen, onClose, onSave, projectId }: ColorsModalProps) {
   const [selectedTheme, setSelectedTheme] = useState<ColorTheme | null>(null);
   const [customColors, setCustomColors] = useState<Record<string, string>>({});
   const [newColorName, setNewColorName] = useState('');
   const [newColorValue, setNewColorValue] = useState('#FFFFFF');
+  const [isLoading, setIsLoading] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -123,13 +127,7 @@ export default function ColorsModal({ isOpen, onClose, onSave }: ColorsModalProp
     gsap.fromTo(previewRef.current, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' });
   };
 
-  const handleAddColor = () => {
-    if (newColorName) {
-      setCustomColors(prev => ({ ...prev, [newColorName.toLowerCase()]: newColorValue }));
-      setNewColorName('');
-      setNewColorValue('#FFFFFF');
-    }
-  };
+  
 
   const generateTailwindConfig = () => {
     const colors = { ...customColors };
@@ -150,6 +148,206 @@ export default {
   plugins: [],
 };`;
   };
+
+  // Nueva función para guardar la paleta de colores en el backend
+const handleSaveColorPalette = async () => {
+  if (!projectId) {
+    setSaveMessage('Error: No se ha especificado un proyecto');
+    return;
+  }
+
+  setIsLoading(true);
+  setSaveMessage('');
+
+  try {
+    // Estructurar los datos según el esquema del backend (campos planos)
+    const colorPaletteData = {
+      name: selectedTheme?.name || 'Custom Palette',
+      description: `Paleta de colores personalizada basada en ${selectedTheme?.name || 'tema personalizado'}`,
+      // Colores primarios
+      primary: customColors.primary,
+      primaryHover: customColors.primaryHover,
+      primaryLight: customColors.primaryLight,
+      primaryDark: customColors.primaryDark,
+      // Colores secundarios
+      secondary: customColors.secondary,
+      secondaryHover: customColors.secondaryHover,
+      secondaryLight: customColors.secondaryLight,
+      // Colores de acento
+      accent: customColors.accent,
+      accentHover: customColors.accentHover,
+      accentLight: customColors.accentLight,
+      // Colores de fondo
+      background: customColors.background,
+      backgroundSecondary: customColors.backgroundSecondary,
+      surface: customColors.surface,
+      card: customColors.card,
+      overlay: customColors.overlay,
+      // Colores de texto
+      text: customColors.text,
+      textSecondary: customColors.textSecondary,
+      textMuted: customColors.textMuted,
+      textInverse: customColors.textInverse,
+      // Colores de estado
+      success: customColors.success,
+      successLight: customColors.successLight,
+      successDark: customColors.successDark,
+      warning: customColors.warning,
+      warningLight: customColors.warningLight,
+      warningDark: customColors.warningDark,
+      error: customColors.error,
+      errorLight: customColors.errorLight,
+      errorDark: customColors.errorDark,
+      info: customColors.info,
+      infoLight: customColors.infoLight,
+      infoDark: customColors.infoDark,
+      // Colores utilitarios
+      muted: customColors.muted,
+      border: customColors.border,
+      borderLight: customColors.borderLight,
+      focus: customColors.focus,
+      disabled: customColors.disabled,
+      shadow: customColors.shadow,
+      // Gradientes
+      gradientStart: customColors.gradientStart,
+      gradientEnd: customColors.gradientEnd,
+      // Colores personalizados como Map
+      customColors: new Map(
+        Object.entries(customColors)
+          .filter(([name]) => ![
+            'primary', 'primaryLight', 'primaryDark', 'primaryHover',
+            'secondary', 'secondaryLight', 'secondaryHover',
+            'accent', 'accentLight', 'accentHover',
+            'background', 'backgroundSecondary', 'surface', 'card', 'overlay',
+            'text', 'textSecondary', 'textMuted', 'textInverse',
+            'success', 'successLight', 'successDark',
+            'warning', 'warningLight', 'warningDark',
+            'error', 'errorLight', 'errorDark',
+            'info', 'infoLight', 'infoDark',
+            'muted', 'border', 'borderLight', 'focus', 'disabled', 'shadow',
+            'gradientStart', 'gradientEnd'
+          ].includes(name))
+      )
+    };
+
+    // Intentar actualizar primero, si falla, crear nueva
+    try {
+      await projectService.updateColorPalette(projectId, colorPaletteData);
+      setSaveMessage('✅ Paleta de colores actualizada exitosamente');
+    } catch (updateError) {
+      // Si la actualización falla, intentar crear nueva
+      await projectService.addColorPalette(projectId, colorPaletteData);
+      setSaveMessage('✅ Paleta de colores guardada exitosamente');
+    }
+
+    // Llamar al callback original si existe
+    if (onSave) {
+      onSave(generateTailwindConfig());
+    }
+
+    // Limpiar mensaje después de 3 segundos
+    setTimeout(() => setSaveMessage(''), 3000);
+
+  } catch (error) {
+    console.error('Error guardando paleta de colores:', error);
+    setSaveMessage('❌ Error al guardar la paleta de colores');
+    setTimeout(() => setSaveMessage(''), 5000);
+  } finally {
+    setIsLoading(false);
+  }
+};
+  // Nueva función para cargar paleta existente del proyecto
+  const loadProjectColorPalette = async () => {
+    if (!projectId) return;
+
+    try {
+      const project = await projectService.getProject(projectId);
+      if (project.data?.colorPalette) {
+        const palette = project.data.colorPalette;
+        
+        // Mapear los datos del backend al formato del componente
+        const mappedColors = {
+          primary: palette.primary?.main || '#3B82F6',
+          primaryLight: palette.primary?.light || '#60A5FA',
+          primaryDark: palette.primary?.dark || '#1D4ED8',
+          primaryHover: palette.primary?.main || '#3B82F6',
+          secondary: palette.secondary?.main || '#6B7280',
+          secondaryLight: palette.secondary?.light || '#9CA3AF',
+          secondaryHover: palette.secondary?.main || '#6B7280',
+          accent: palette.accent?.main || '#F59E0B',
+          accentLight: palette.accent?.light || '#FCD34D',
+          accentHover: palette.accent?.main || '#F59E0B',
+          background: palette.background?.primary || '#FFFFFF',
+          backgroundSecondary: palette.background?.secondary || '#F9FAFB',
+          surface: palette.background?.paper || '#FFFFFF',
+          card: palette.background?.default || '#FFFFFF',
+          overlay: palette.utility?.overlay || 'rgba(0,0,0,0.5)',
+          text: palette.text?.primary || '#111827',
+          textSecondary: palette.text?.secondary || '#6B7280',
+          textMuted: palette.text?.hint || '#9CA3AF',
+          textInverse: palette.primary?.contrastText || '#FFFFFF',
+          success: palette.status?.success || '#10B981',
+          successLight: '#6EE7B7',
+          successDark: '#047857',
+          warning: palette.status?.warning || '#F59E0B',
+          warningLight: '#FCD34D',
+          warningDark: '#D97706',
+          error: palette.status?.error || '#EF4444',
+          errorLight: '#FCA5A5',
+          errorDark: '#DC2626',
+          info: palette.status?.info || '#3B82F6',
+          infoLight: '#93C5FD',
+          infoDark: '#1D4ED8',
+          muted: '#6B7280',
+          border: palette.utility?.border || '#E5E7EB',
+          borderLight: palette.utility?.divider || '#F3F4F6',
+          focus: '#3B82F6',
+          disabled: '#D1D5DB',
+          shadow: palette.utility?.shadow || 'rgba(0,0,0,0.1)',
+          gradientStart: palette.primary?.main || '#3B82F6',
+          gradientEnd: palette.accent?.main || '#F59E0B'
+        };
+
+        // Añadir colores personalizados
+        if (palette.customColors && Array.isArray(palette.customColors)) {
+          palette.customColors.forEach((customColor: any) => {
+            if (customColor.name && customColor.value) {
+              mappedColors[customColor.name] = customColor.value;
+            }
+          });
+        }
+
+        setCustomColors(mappedColors);
+        
+        // Crear un tema temporal para la visualización
+        const tempTheme = {
+          name: palette.name || 'Proyecto Actual',
+          ...mappedColors
+        };
+        setSelectedTheme(tempTheme);
+      }
+    } catch (error) {
+      console.error('Error cargando paleta del proyecto:', error);
+    }
+  };
+
+  // Cargar paleta del proyecto al abrir el modal
+  useEffect(() => {
+    if (isOpen && projectId) {
+      loadProjectColorPalette();
+    } else if (isOpen && predefinedThemes.length > 0) {
+      handleThemeChange(predefinedThemes[0]);
+    }
+  }, [isOpen, projectId]);
+
+  const handleAddColor = () => {
+    if (newColorName) {
+      setCustomColors(prev => ({ ...prev, [newColorName.toLowerCase()]: newColorValue }));
+      setNewColorName('');
+      setNewColorValue('#FFFFFF');
+    }
+  };
+
 
   if (!isOpen) return null;
 
@@ -447,12 +645,35 @@ export default {
           >
             Cancel
           </button>
+          
+          {/* Mostrar mensaje de guardado */}
+          {saveMessage && (
+            <div className="flex items-center px-4 py-2 rounded-lg text-sm font-medium"
+                 style={{ 
+                   backgroundColor: saveMessage.includes('✅') ? customColors.successLight : customColors.errorLight,
+                   color: saveMessage.includes('✅') ? customColors.successDark : customColors.errorDark
+                 }}>
+              {saveMessage}
+            </div>
+          )}
+          
           <button 
-            onClick={() => onSave && onSave(generateTailwindConfig())} 
-            className="px-6 py-2 font-semibold text-white rounded-lg transition-all hover:scale-105" 
+            onClick={handleSaveColorPalette}
+            disabled={isLoading || !projectId}
+            className="px-6 py-2 font-semibold text-white rounded-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2" 
             style={{ backgroundColor: customColors.primary }}
           >
-            Save & Apply
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                Guardando...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                {projectId ? 'Guardar en Proyecto' : 'Guardar Paleta'}
+              </>
+            )}
           </button>
         </div>
       </div>
