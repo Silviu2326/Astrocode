@@ -3,7 +3,7 @@ import {
   X, Sparkles, Target, Users, Cpu, TrendingUp, BarChart3, Eye, Lightbulb, FileText, Shield, Link, ArrowLeft,
   // Iconos faltantes que se usan en el código
   Workflow, MessageSquare, Stethoscope, Table, Filter, Leaf, Building, Globe, Package, 
-  Database, Smartphone, Brain, Cloud, Heart, Zap
+  Database, Smartphone, Brain, Cloud, Heart, Zap, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { useProject } from '../context/ProjectContext';
 import apiRequest from '../services/api';
@@ -60,6 +60,8 @@ export default function AIProjectGenerator({ isOpen, onClose }: AIProjectGenerat
   const [aiFormData, setAiFormData] = useState<any>({});
   const [generatedProjects, setGeneratedProjects] = useState<GeneratedSoftware[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showExamples, setShowExamples] = useState(true);
+  const [selectedExample, setSelectedExample] = useState<number | null>(null);
 
   const handleGenerateProjects = async () => {
     if (!selectedMode || Object.keys(aiFormData).length === 0) {
@@ -128,12 +130,22 @@ export default function AIProjectGenerator({ isOpen, onClose }: AIProjectGenerat
     setSelectedMode(null);
     setAiFormData({});
     setGeneratedProjects([]);
+    setShowExamples(true);
+    setSelectedExample(null);
   };
 
   const handleModeSelect = (mode: any) => {
     setSelectedMode(mode);
     setAiFormData({});
+    setShowExamples(true);
+    setSelectedExample(null);
     setAiStep('form');
+  };
+
+  const handleUseExample = (exampleIndex: number) => {
+    const example = selectedMode.examples[exampleIndex];
+    setAiFormData(example.input);
+    setSelectedExample(exampleIndex);
   };
 
   const renderAIModeSelection = () => (
@@ -193,7 +205,7 @@ export default function AIProjectGenerator({ isOpen, onClose }: AIProjectGenerat
     const IconComponent = selectedMode.icon;
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center space-x-3 mb-6">
           <button
             onClick={() => setAiStep('modes')}
@@ -210,49 +222,144 @@ export default function AIProjectGenerator({ isOpen, onClose }: AIProjectGenerat
           </div>
         </div>
 
-        {selectedMode.fields.map((field: any) => (
-          <div key={field.name}>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              {field.label}
-            </label>
-            {field.type === 'select' ? (
-              <select
-                value={aiFormData[field.name] || ''}
-                onChange={(e) => setAiFormData({ ...aiFormData, [field.name]: e.target.value })}
-                className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-              >
-                <option value="" className="bg-gray-800 text-gray-300">Selecciona una opción</option>
-                {field.options.map((option: string) => (
-                  <option key={option} value={option} className="bg-gray-800 text-white hover:bg-gray-700">{option}</option>
+        {/* Sección de Ejemplos */}
+        {selectedMode.examples && selectedMode.examples.length > 0 && (
+          <div className="bg-white/5 border border-gray-700/50 rounded-lg p-4">
+            <button
+              onClick={() => setShowExamples(!showExamples)}
+              className="flex items-center justify-between w-full text-left mb-3"
+            >
+              <h4 className="text-md font-medium text-white flex items-center space-x-2">
+                <Lightbulb className="h-4 w-4 text-yellow-400" />
+                <span>Ejemplos de uso ({selectedMode.examples.length})</span>
+              </h4>
+              {showExamples ? (
+                <ChevronUp className="h-4 w-4 text-gray-400" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-gray-400" />
+              )}
+            </button>
+            
+            {showExamples && (
+              <div className="space-y-4">
+                {selectedMode.examples.map((example: any, index: number) => (
+                  <div 
+                    key={index} 
+                    className={`border rounded-lg p-3 transition-all duration-200 cursor-pointer ${
+                      selectedExample === index 
+                        ? 'border-pink-400/50 bg-pink-500/10' 
+                        : 'border-gray-600/50 bg-white/5 hover:border-gray-500/50 hover:bg-white/10'
+                    }`}
+                    onClick={() => handleUseExample(index)}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h5 className="font-medium text-white text-sm">
+                        Ejemplo {index + 1}: {example.output.projectName}
+                      </h5>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUseExample(index);
+                        }}
+                        className={`text-xs px-2 py-1 rounded transition-all duration-200 ${
+                          selectedExample === index
+                            ? 'bg-pink-500 text-white'
+                            : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                        }`}
+                      >
+                        {selectedExample === index ? 'Usado' : 'Usar'}
+                      </button>
+                    </div>
+                    
+                    <div className="grid md:grid-cols-2 gap-3 text-xs">
+                      <div>
+                        <h6 className="text-gray-400 font-medium mb-1">Inputs:</h6>
+                        <div className="space-y-1">
+                          {Object.entries(example.input).map(([key, value]) => (
+                            <div key={key} className="text-gray-300">
+                              <span className="text-gray-400">{key}:</span> {value as string}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <h6 className="text-gray-400 font-medium mb-1">Output esperado:</h6>
+                        <div className="text-gray-300">
+                          <div className="mb-1">
+                            <span className="text-green-400 font-medium">{example.output.projectName}</span>
+                          </div>
+                          <div className="text-xs text-gray-400 mb-2">{example.output.description}</div>
+                          <div className="flex flex-wrap gap-1">
+                            {example.output.features.slice(0, 2).map((feature: string, idx: number) => (
+                              <span key={idx} className="bg-blue-500/20 text-blue-300 px-1 py-0.5 rounded text-xs">
+                                {feature}
+                              </span>
+                            ))}
+                            {example.output.features.length > 2 && (
+                              <span className="text-gray-500 text-xs">+{example.output.features.length - 2} más</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </select>
-            ) : field.type === 'textarea' ? (
-              <textarea
-                value={aiFormData[field.name] || ''}
-                onChange={(e) => setAiFormData({ ...aiFormData, [field.name]: e.target.value })}
-                rows={3}
-                className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm transition-all duration-200 resize-none"
-                placeholder={field.placeholder}
-              />
-            ) : (
-              <input
-                type={field.type}
-                value={aiFormData[field.name] || ''}
-                onChange={(e) => setAiFormData({ ...aiFormData, [field.name]: e.target.value })}
-                className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
-                placeholder={field.placeholder}
-              />
+              </div>
             )}
           </div>
-        ))}
+        )}
 
-        <button
-          onClick={handleGenerateProjects}
-          disabled={isGenerating || selectedMode.fields.some((field: any) => !aiFormData[field.name])}
-          className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
-        >
-          {isGenerating ? 'Generando...' : 'Generar Proyectos'}
-        </button>
+        {/* Formulario */}
+        <div className="space-y-4">
+          <h4 className="text-md font-medium text-white border-b border-gray-700/50 pb-2">
+            Completa los campos
+          </h4>
+          
+          {selectedMode.fields.map((field: any) => (
+            <div key={field.name}>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                {field.label}
+              </label>
+              {field.type === 'select' ? (
+                <select
+                  value={aiFormData[field.name] || ''}
+                  onChange={(e) => setAiFormData({ ...aiFormData, [field.name]: e.target.value })}
+                  className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                >
+                  <option value="" className="bg-gray-800 text-gray-300">Selecciona una opción</option>
+                  {field.options.map((option: string) => (
+                    <option key={option} value={option} className="bg-gray-800 text-white hover:bg-gray-700">{option}</option>
+                  ))}
+                </select>
+              ) : field.type === 'textarea' ? (
+                <textarea
+                  value={aiFormData[field.name] || ''}
+                  onChange={(e) => setAiFormData({ ...aiFormData, [field.name]: e.target.value })}
+                  rows={3}
+                  className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm transition-all duration-200 resize-none"
+                  placeholder={field.placeholder}
+                />
+              ) : (
+                <input
+                  type={field.type}
+                  value={aiFormData[field.name] || ''}
+                  onChange={(e) => setAiFormData({ ...aiFormData, [field.name]: e.target.value })}
+                  className="w-full px-3 py-2 bg-white/10 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-pink-400 focus:border-transparent backdrop-blur-sm transition-all duration-200"
+                  placeholder={field.placeholder}
+                />
+              )}
+            </div>
+          ))}
+
+          <button
+            onClick={handleGenerateProjects}
+            disabled={isGenerating || selectedMode.fields.some((field: any) => !aiFormData[field.name])}
+            className="w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg"
+          >
+            {isGenerating ? 'Generando...' : 'Generar Proyectos'}
+          </button>
+        </div>
       </div>
     );
   };
