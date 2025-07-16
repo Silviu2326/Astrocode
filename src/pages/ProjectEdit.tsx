@@ -11,6 +11,7 @@ import NewFileModal from '../components/NewFileModal';
 import AuthModal from '../components/AuthModal';
 import ColorsModal from '../components/ColorsModal';
 import ComponentsModal from '../components/ComponentsModal';
+import DependenciesModal from '../components/DependenciesModal';
 import GeneracionCompletaPopup from '../components/GeneracionCompletaPopup';
 import PopupExecutePrompts from '../components/PopupExecutePrompts';
 import KanbanView from '../components/views/KanbanView';
@@ -134,6 +135,7 @@ export default function ProjectEdit() {
   const [selectedPageForExecution, setSelectedPageForExecution] = useState<AppPage | null>(null);
   const [userStoriesForExecution, setUserStoriesForExecution] = useState<UserStory[]>([]);
   const [selectedUserStoryIds, setSelectedUserStoryIds] = useState<string[]>([]);
+  const [isDependenciesModalOpen, setIsDependenciesModalOpen] = useState(false);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -829,6 +831,7 @@ const handleCopyPrompt = async () => {
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsAuthModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Shield className="h-5 w-5 text-blue-400" /><span>Auth</span></motion.button>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsColorsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Palette className="h-5 w-5 text-purple-400" /><span>Colores</span></motion.button>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsComponentsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Package className="h-5 w-5 text-green-400" /><span>Componentes</span></motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsDependenciesModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Server className="h-5 w-5 text-orange-400" /><span>Elección de Dependencias</span></motion.button>
               </div>
               
               {/* Segunda fila de botones */}
@@ -1049,6 +1052,7 @@ const handleCopyPrompt = async () => {
         }} 
       />
       <ComponentsModal isOpen={isComponentsModalOpen} onClose={() => setIsComponentsModalOpen(false)} />
+      <DependenciesModal isOpen={isDependenciesModalOpen} onClose={() => setIsDependenciesModalOpen(false)} />
       {isGeneracionCompletaPopupOpen && <GeneracionCompletaPopup onClose={() => setIsGeneracionCompletaPopupOpen(false)} />}
 <IAPanel 
   projectEditSetters={{
