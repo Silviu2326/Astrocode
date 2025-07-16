@@ -16,10 +16,18 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [editingPageId, setEditingPageId] = useState<string | null>(null);
   const [editingPage, setEditingPage] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'pages' | 'entities'>('pages');
+  const [activeTab, setActiveTab] = useState<'pages' | 'entities' | 'controllers'>('pages');
+
+  // Console log para ver el proyecto actual
+  console.log('🔍 GeneracionCompletaPopup - currentProject:', currentProject);
+  console.log('🔍 GeneracionCompletaPopup - generationResult:', generationResult);
 
   const handleGeneratePages = async () => {
+    console.log('🚀 handleGeneratePages - Iniciando generación');
+    console.log('🚀 currentProject?.id:', currentProject?.id);
+    
     if (!currentProject?.id) {
+      console.log('❌ No hay proyecto seleccionado');
       setError('No hay un proyecto seleccionado');
       return;
     }
@@ -30,7 +38,10 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
     try {
       let result;
       
+      console.log('🔍 Verificando si hay páginas existentes:', generationResult?.generatedPages?.length);
+      
       if (generationResult && generationResult.generatedPages && generationResult.generatedPages.length > 0) {
+        console.log('📄 Generando páginas adicionales...');
         // Si ya hay páginas generadas, usar la función de páginas adicionales
         const existingPages = generationResult.generatedPages.map((page: any) => ({
           name: page.name,
@@ -40,30 +51,44 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
           priority: page.priority
         }));
         
+        console.log('📄 existingPages:', existingPages);
+        
         result = await projectService.generateAdditionalPages(currentProject.id, existingPages);
         
+        console.log('✅ Resultado de páginas adicionales:', result);
+        
         // Agregar las nuevas páginas a la lista existente
-        setGenerationResult({
+        const newGenerationResult = {
           ...result,
           generatedPages: [...generationResult.generatedPages, ...result.generatedPages],
           totalPages: generationResult.generatedPages.length + result.totalNewPages,
           totalNewPages: result.totalNewPages,
           existingPagesCount: result.existingPagesCount,
           // Mantener el esquema ER existente si no se genera uno nuevo
-          erSchema: result.erSchema || generationResult.erSchema
-        });
+          erSchema: result.erSchema || generationResult.erSchema,
+          // Mantener controladores existentes
+          controllers: result.controllers || generationResult.controllers,
+          // Mantener user stories existentes
+          userStories: result.userStories || generationResult.userStories
+        };
+        
+        console.log('🔄 Nuevo generationResult combinado:', newGenerationResult);
+        setGenerationResult(newGenerationResult);
       } else {
+        console.log('🆕 Primera generación de páginas...');
         // Primera generación, usar la función original
         result = await projectService.generatePages(currentProject.id);
+        console.log('✅ Resultado de primera generación:', result);
         setGenerationResult(result);
       }
       
-      console.log('Páginas y esquema ER generados exitosamente:', result);
+      console.log('🎉 Páginas, esquema ER, controladores y user stories generados exitosamente:', result);
     } catch (err) {
+      console.error('💥 Error al generar páginas:', err);
       setError(err instanceof Error ? err.message : 'Error al generar páginas');
-      console.error('Error al generar páginas:', err);
     } finally {
       setIsGenerating(false);
+      console.log('🏁 Generación finalizada');
     }
   };
 
@@ -168,7 +193,7 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
         
         {!generationResult && (
           <>
-            <p className="text-gray-300 mb-6">Genera automáticamente la estructura de páginas, esquema entidad-relación y user stories para tu proyecto usando IA.</p>
+            <p className="text-gray-300 mb-6">Genera automáticamente la estructura de páginas, esquema entidad-relación, controladores con funciones básicas y user stories para tu proyecto usando IA.</p>
             
             {currentProject && (
               <div className="mb-4 p-3 bg-gray-800 rounded">
@@ -222,6 +247,12 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
                     <p>✅ {generationResult.totalRelationships || generationResult.erSchema.relationships?.length || 0} relaciones definidas</p>
                   </>
                 )}
+                {generationResult.controllers && (
+                  <p>✅ {generationResult.controllers.length} controladores generados</p>
+                )}
+                {generationResult.userStories && (
+                  <p>✅ {Object.keys(generationResult.userStories).length} páginas con user stories generadas</p>
+                )}
               </div>
             </div>
 
@@ -260,6 +291,18 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
                     }`}
                   >
                     Esquema ER ({generationResult.erSchema.entities?.length || 0} entidades)
+                  </button>
+                )}
+                {generationResult.controllers && (
+                  <button
+                    onClick={() => setActiveTab('controllers')}
+                    className={`px-4 py-2 font-medium text-sm ${
+                      activeTab === 'controllers'
+                        ? 'text-blue-400 border-b-2 border-blue-400'
+                        : 'text-gray-400 hover:text-gray-300'
+                    }`}
+                  >
+                    Controladores ({generationResult.controllers.length})
                   </button>
                 )}
               </div>
@@ -426,6 +469,236 @@ const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClo
                             </span>
                           )}
                         </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Tab de Esquema ER */}
+            {activeTab === 'entities' && generationResult.erSchema && (
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Esquema Entidad-Relación ({generationResult.erSchema.entities?.length || 0} entidades)
+                </h3>
+                
+                {/* Vista de diagrama React Flow */}
+                <div className="mb-6">
+                  <h4 className="text-md font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7" />
+                    </svg>
+                    Diagrama Entidad-Relación
+                  </h4>
+                  <ERSchemaFlow 
+                    erSchema={generationResult.erSchema} 
+                    className="border border-gray-600 rounded-lg"
+                  />
+                </div>
+                
+                {/* Vista detallada existente */}
+                {/* Entidades */}
+                <div className="mb-6">
+                  <h4 className="text-md font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Entidades
+                  </h4>
+                  <div className="space-y-4 max-h-96 overflow-y-auto">
+                    {generationResult.erSchema.entities?.map((entity: any) => (
+                      <div key={entity.id} className="p-4 bg-gray-800 rounded border-l-4 border-green-500">
+                        <div className="flex justify-between items-start mb-2">
+                          <h5 className="font-semibold text-white text-lg">{entity.name}</h5>
+                          <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">
+                            {entity.fields?.length || 0} campos
+                          </span>
+                        </div>
+                        <p className="text-gray-300 text-sm mb-3">{entity.description}</p>
+                        
+                        {/* Campos */}
+                        <div className="mb-3">
+                          <h6 className="text-xs font-semibold text-gray-400 mb-2">CAMPOS:</h6>
+                          <div className="grid grid-cols-1 gap-2">
+                            {entity.fields?.map((field: any, idx: number) => (
+                              <div key={idx} className="flex items-center justify-between p-2 bg-gray-700 rounded">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-white font-mono text-sm">{field.name}</span>
+                                  <span className={`text-xs px-2 py-1 rounded text-white ${getFieldTypeColor(field.type)}`}>
+                                    {field.type}
+                                  </span>
+                                  {field.required && (
+                                    <span className="text-xs bg-red-600 text-white px-1 py-0.5 rounded">
+                                      *
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-gray-400 text-xs max-w-xs truncate" title={field.description}>
+                                  {field.description}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Páginas relacionadas */}
+                        {entity.relatedPages && entity.relatedPages.length > 0 && (
+                          <div>
+                            <h6 className="text-xs font-semibold text-gray-400 mb-2">PÁGINAS RELACIONADAS:</h6>
+                            <div className="flex flex-wrap gap-1">
+                              {entity.relatedPages.map((pageName: string, idx: number) => (
+                                <span key={idx} className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
+                                  {pageName}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Relaciones */}
+                {generationResult.erSchema.relationships && generationResult.erSchema.relationships.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="text-md font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                      Relaciones ({generationResult.erSchema.relationships.length})
+                    </h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {generationResult.erSchema.relationships.map((relationship: any) => (
+                        <div key={relationship.id} className="p-3 bg-gray-800 rounded border-l-4 border-purple-500">
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-semibold">{relationship.from}</span>
+                              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                              </svg>
+                              <span className="text-white font-semibold">{relationship.to}</span>
+                            </div>
+                            <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">
+                              {getRelationshipTypeLabel(relationship.type)}
+                            </span>
+                          </div>
+                          <p className="text-gray-300 text-sm">{relationship.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {generationResult.metadata && (
+              <div className="mb-4 p-3 bg-gray-800 rounded">
+                <h4 className="text-sm font-semibold text-gray-300 mb-2">Información de Generación</h4>
+                <p className="text-xs text-gray-400">Modelo IA: {generationResult.metadata.aiModel}</p>
+                <p className="text-xs text-gray-400">Generado: {new Date(generationResult.metadata.generatedAt).toLocaleString()}</p>
+                {generationResult.metadata.basedOn?.existingPages && (
+                  <p className="text-xs text-gray-400">Basado en: {generationResult.metadata.basedOn.existingPages} páginas existentes</p>
+                )}
+              </div>
+            )}
+
+            {/* Tab de Controladores */}
+            {activeTab === 'controllers' && generationResult.controllers && (
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-white mb-4">
+                  Controladores Generados ({generationResult.controllers.length})
+                </h3>
+                
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {generationResult.controllers.map((controller: any) => (
+                    <div key={controller.id} className="p-4 bg-gray-800 rounded border-l-4 border-orange-500">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-semibold text-white text-lg">{controller.controllerName}</h4>
+                          <p className="text-gray-400 text-sm">Entidad: {controller.entityName}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs bg-orange-600 text-white px-2 py-1 rounded">
+                            {controller.functions?.length || 0} funciones
+                          </span>
+                          {controller.generatedByAI && (
+                            <span className="text-xs bg-purple-600 text-white px-2 py-1 rounded">
+                              IA
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <p className="text-gray-300 text-sm mb-4">{controller.description}</p>
+                      
+                      {/* Funciones del controlador */}
+                      {controller.functions && controller.functions.length > 0 && (
+                        <div>
+                          <h5 className="text-sm font-semibold text-gray-400 mb-3 flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                            FUNCIONES:
+                          </h5>
+                          <div className="space-y-2">
+                            {controller.functions.map((func: any) => (
+                              <div key={func.id} className="p-3 bg-gray-700 rounded">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-white font-mono text-sm font-semibold">{func.name}</span>
+                                    <span className={`text-xs px-2 py-1 rounded text-white ${
+                                      func.method === 'GET' ? 'bg-green-600' :
+                                      func.method === 'POST' ? 'bg-blue-600' :
+                                      func.method === 'PUT' ? 'bg-yellow-600' :
+                                      func.method === 'DELETE' ? 'bg-red-600' :
+                                      'bg-gray-600'
+                                    }`}>
+                                      {func.method}
+                                    </span>
+                                  </div>
+                                  {func.returnType && (
+                                    <span className="text-xs bg-gray-600 text-white px-2 py-1 rounded">
+                                      {func.returnType}
+                                    </span>
+                                  )}
+                                </div>
+                                
+                                <p className="text-gray-300 text-sm mb-2">{func.description}</p>
+                                
+                                <div className="flex items-center justify-between text-xs">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-gray-400">Ruta:</span>
+                                    <code className="bg-gray-800 text-green-400 px-2 py-1 rounded">{func.route}</code>
+                                  </div>
+                                  
+                                  {func.parameters && func.parameters.length > 0 && (
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-gray-400">Parámetros:</span>
+                                      <div className="flex gap-1">
+                                        {func.parameters.map((param: string, idx: number) => (
+                                          <span key={idx} className="bg-blue-700 text-blue-200 px-1 py-0.5 rounded text-xs">
+                                            {param}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Información adicional */}
+                      {controller.createdAt && (
+                        <div className="mt-3 pt-3 border-t border-gray-600">
+                          <p className="text-xs text-gray-400">
+                            Generado: {new Date(controller.createdAt).toLocaleString()}
+                          </p>
+                        </div>
                       )}
                     </div>
                   ))}
