@@ -1,0 +1,126 @@
+/*  █ Neuro-Nova UI Tokens – El software que gobierna a los demás  */
+:root {
+  /* Fondo y capas */
+  --nn-bg-0:        226 28%  8%;   /* casi negro azulado */
+  --nn-bg-1:        229 24% 12%;   /* paneles */
+  --nn-panel-glass: 228 16% 18%;
+
+  /* Acentos neón */
+  --nn-accent-cyan:   185 100% 63%;
+  --nn-accent-magenta:300 100% 60%;
+  --nn-accent-lime:   138 100% 60%;
+
+  /* Texto */
+  --nn-text-strong:  210 20% 98%;
+  --nn-text-soft:    210 14% 70%;
+  --nn-text-muted:   210 10% 45%;
+
+  /* Motion */
+  --nn-dur-fast: 120ms;
+  --nn-dur-mid:  320ms;
+  --nn-dur-slow: 640ms;
+
+  /* Radii & blur */
+  --nn-radius-lg: 18px;
+  --nn-blur-bg:   20px;
+  --nn-blur-glass: 36px;
+
+  /* Shadows neón */
+  --nn-shadow-cyan: 0 0 8px hsla(var(--nn-accent-cyan) / .9), 0 0 20px hsla(var(--nn-accent-cyan) / .6);
+  --nn-shadow-magenta: 0 0 8px hsla(var(--nn-accent-magenta) / .9), 0 0 20px hsla(var(--nn-accent-magenta) / .6);
+  --nn-shadow-lime: 0 0 8px hsla(var(--nn-accent-lime) / .9), 0 0 20px hsla(var(--nn-accent-lime) / .6);
+}
+
+/*  █ Utilidades rápidas - SIN @layer utilities */
+/* Fondos */
+.bg-nn-bg0 { background-color: hsl(var(--nn-bg-0)); }
+.bg-nn-bg1 { background-color: hsl(var(--nn-bg-1)); }
+
+.bg-nn-panel  { 
+  background: hsl(var(--nn-bg-1) / 0.75); 
+  backdrop-filter: blur(var(--nn-blur-bg)); 
+}
+
+.glass {
+  background: hsl(var(--nn-panel-glass) / 0.55);
+  backdrop-filter: blur(var(--nn-blur-glass)) saturate(140%);
+  border: 1px solid hsl(var(--nn-panel-glass) / 0.3);
+}
+
+/* Texto */
+.text-nn-text-strong { color: hsl(var(--nn-text-strong)); }
+.text-nn-text-soft   { color: hsl(var(--nn-text-soft)); }
+.text-nn-text-muted  { color: hsl(var(--nn-text-muted)); }
+
+.text-strong  { color: hsl(var(--nn-text-strong)); }
+.text-soft    { color: hsl(var(--nn-text-soft)); }
+.text-muted   { color: hsl(var(--nn-text-muted)); }
+
+/* Colores neón */
+.neon-cyan    { color: hsl(var(--nn-accent-cyan)); }
+.neon-mag     { color: hsl(var(--nn-accent-magenta)); }
+.neon-lime    { color: hsl(var(--nn-accent-lime)); }
+
+.text-nn-cyan { color: hsl(var(--nn-accent-cyan)); }
+.text-nn-lime { color: hsl(var(--nn-accent-lime)); }
+.text-nn-mag  { color: hsl(var(--nn-accent-magenta)); }
+
+/* Anillos neón */
+.ring-neon-cyan { 
+  box-shadow: 0 0 0 2px hsl(var(--nn-accent-cyan) / .5), 0 0 12px hsl(var(--nn-accent-cyan) / .6); 
+}
+
+.ring-neon-mag { 
+  box-shadow: 0 0 0 2px hsl(var(--nn-accent-magenta) / .5), 0 0 12px hsl(var(--nn-accent-magenta) / .6); 
+}
+
+.ring-neon-lime { 
+  box-shadow: 0 0 0 2px hsl(var(--nn-accent-lime) / .5), 0 0 12px hsl(var(--nn-accent-lime) / .6); 
+}
+
+/* Efectos especiales */
+.brain-pulse {
+  animation: brainPulse var(--nn-dur-slow) ease-in-out infinite alternate;
+}
+
+.flow-lines {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    hsl(var(--nn-accent-cyan) / 0.3) 50%, 
+    transparent 100%);
+  background-size: 200px 1px;
+  animation: flowLines 3s linear infinite;
+}
+
+/* Animaciones */
+.animate-brain-pulse { animation: brainPulse var(--nn-dur-slow) ease-in-out infinite alternate; }
+.animate-flow-lines { animation: flowLines 3s linear infinite; }
+.animate-neural-flow { animation: neuralFlow 2s ease-in-out infinite; }
+
+/* Keyframes para animaciones */
+@keyframes brainPulse {
+  0%   { 
+    box-shadow: var(--nn-shadow-cyan);
+    transform: scale(1);
+  }
+  100% { 
+    box-shadow: 0 0 16px hsl(var(--nn-accent-cyan) / 1), 0 0 32px hsl(var(--nn-accent-cyan) / .8);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes flowLines {
+  from { background-position: 0 0; }
+  to   { background-position: 200px 0; }
+}
+
+@keyframes pulseNeon {
+  0%   { box-shadow: 0 0 4px hsl(var(--nn-accent-cyan) / .6); }
+  100% { box-shadow: 0 0 16px hsl(var(--nn-accent-cyan) / 1); }
+}
+
+@keyframes neuralFlow {
+  0%   { stroke-dashoffset: 1000; opacity: 0; }
+  50%  { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0.7; }
+}

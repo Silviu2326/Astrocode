@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext';
 import { useAuth } from '../context/AuthContext';
 import { ChevronDown, Bell, Settings, User, LogOut, CheckCircle, AlertTriangle, Clock, Menu, X } from 'lucide-react';
+import './Header.css';
 
 const Header: React.FC = () => {
   const { currentProject } = useProject();
@@ -87,14 +88,14 @@ const Header: React.FC = () => {
   const issues = getIssuesCount();
 
   return (
-    <header className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 backdrop-blur-xl border-b border-slate-800" style={{ backgroundColor: '#020617' }}>
+    <header className="header-container header-brain-pulse">
       <div className="flex items-center justify-between">
         {/* Left section */}
         <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-6 flex-1 min-w-0">
           {/* Mobile menu button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 text-slate-400 hover:text-slate-200 transition-colors bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-700"
+            className="lg:hidden p-2 header-text-muted header-hover-text transition-colors header-glass header-border rounded-lg header-hover-bg header-shadow-cyan"
           >
             {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -102,23 +103,23 @@ const Header: React.FC = () => {
           {/* Project info and progress */}
           <div className="flex items-center space-x-2 sm:space-x-4 flex-1 min-w-0">
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-xl font-semibold text-slate-200 truncate">
+              <h1 className="text-lg sm:text-xl font-semibold header-text-strong truncate header-flow-lines">
                 {currentProject?.name || 'Sin proyecto'}
               </h1>
               {/* Stats - Hidden on mobile, shown on tablet+ */}
               <div className="hidden sm:flex items-center space-x-2 mt-1">
-                <div className="flex items-center space-x-1 text-xs sm:text-sm text-slate-400">
-                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 text-green-400" />
+                <div className="flex items-center space-x-1 text-xs sm:text-sm header-text-muted">
+                  <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 header-accent-success" />
                   <span className="hidden md:inline">{progress.completed} completadas</span>
                   <span className="md:hidden">{progress.completed}</span>
                 </div>
-                <div className="flex items-center space-x-1 text-xs sm:text-sm text-slate-400">
-                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
+                <div className="flex items-center space-x-1 text-xs sm:text-sm header-text-muted">
+                  <Clock className="h-3 w-3 sm:h-4 sm:w-4 header-neon-cyan" />
                   <span className="hidden md:inline">{progress.inProgress} en progreso</span>
                   <span className="md:hidden">{progress.inProgress}</span>
                 </div>
-                <div className="flex items-center space-x-1 text-xs sm:text-sm text-slate-400">
-                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 text-yellow-400" />
+                <div className="flex items-center space-x-1 text-xs sm:text-sm header-text-muted">
+                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4 header-accent-warning" />
                   <span className="hidden md:inline">{progress.todo} pendientes</span>
                   <span className="md:hidden">{progress.todo}</span>
                 </div>
@@ -127,13 +128,13 @@ const Header: React.FC = () => {
             
             {/* Progress bar - Hidden on mobile */}
             <div className="hidden md:flex flex-col items-center">
-              <div className="w-24 lg:w-32 bg-slate-800 rounded-full h-2 border border-slate-700">
+              <div className="w-24 lg:w-32 header-bg-1 rounded-full h-2 border header-border header-shadow-cyan">
                 <div 
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="header-bg-primary h-2 rounded-full transition-all duration-300 header-brain-pulse"
                   style={{ width: `${progress.percentage}%` }}
                 ></div>
               </div>
-              <span className="text-xs text-slate-500 mt-1">
+              <span className="text-xs header-text-muted mt-1">
                 {progress.percentage}% ({progress.completed}/{progress.total})
               </span>
             </div>
@@ -144,7 +145,7 @@ const Header: React.FC = () => {
             <select 
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="text-sm bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="text-sm header-glass header-border rounded-lg px-3 py-2 header-text-strong header-focus transition-colors header-shadow-cyan"
             >
               <option value="main">main</option>
               <option value="develop">develop</option>
@@ -154,7 +155,7 @@ const Header: React.FC = () => {
             <select 
               value={selectedEnvironment}
               onChange={(e) => setSelectedEnvironment(e.target.value)}
-              className="text-sm bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              className="text-sm header-glass header-border rounded-lg px-3 py-2 header-text-strong header-focus transition-colors header-shadow-cyan"
             >
               <option value="development">Development</option>
               <option value="staging">Staging</option>
@@ -166,29 +167,29 @@ const Header: React.FC = () => {
         {/* Right section */}
         <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
           {/* Issues counter - Simplified on mobile */}
-          <div className="hidden sm:flex items-center space-x-2 lg:space-x-3 bg-slate-800/50 border border-slate-700 rounded-lg px-2 lg:px-3 py-2">
+          <div className="hidden sm:flex items-center space-x-2 lg:space-x-3 header-glass header-border rounded-lg px-2 lg:px-3 py-2 header-shadow-magenta">
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-              <span className="text-xs lg:text-sm text-slate-400">{issues.critical}</span>
+              <div className="w-2 h-2 header-accent-danger rounded-full header-brain-pulse"></div>
+              <span className="text-xs lg:text-sm header-text-muted">{issues.critical}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-              <span className="text-xs lg:text-sm text-slate-400">{issues.warning}</span>
+              <div className="w-2 h-2 bg-yellow-500 rounded-full header-brain-pulse"></div>
+              <span className="text-xs lg:text-sm header-text-muted">{issues.warning}</span>
             </div>
             <div className="flex items-center space-x-1">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-              <span className="text-xs lg:text-sm text-slate-400">{issues.info}</span>
+              <div className="w-2 h-2 header-accent-primary rounded-full header-brain-pulse"></div>
+              <span className="text-xs lg:text-sm header-text-muted">{issues.info}</span>
             </div>
           </div>
 
           {/* Sync button */}
-          <button className="px-3 lg:px-4 py-2 text-xs lg:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20">
+          <button className="px-3 lg:px-4 py-2 text-xs lg:text-sm header-accent-primary header-text-strong rounded-lg header-hover-accent transition-colors header-shadow-cyan header-flow-lines">
             <span className="hidden sm:inline">Sync</span>
             <span className="sm:hidden">S</span>
           </button>
 
           {/* Notifications - Hidden on mobile */}
-          <button className="hidden sm:block p-2 text-slate-400 hover:text-slate-200 transition-colors bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-700">
+          <button className="hidden sm:block p-2 header-text-muted header-hover-text transition-colors header-glass header-border rounded-lg header-hover-bg header-shadow-magenta">
             <Bell className="h-4 w-4 lg:h-5 lg:w-5" />
           </button>
 
@@ -196,10 +197,10 @@ const Header: React.FC = () => {
           <div className="relative" ref={userMenuRef}>
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center space-x-1 sm:space-x-2 p-2 text-slate-300 hover:text-slate-100 transition-colors bg-slate-800/50 border border-slate-700 rounded-lg hover:bg-slate-700"
+              className="flex items-center space-x-1 sm:space-x-2 p-2 header-text-soft header-hover-text transition-colors header-glass header-border rounded-lg header-hover-bg header-shadow-cyan"
             >
-              <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs sm:text-sm font-medium">
+              <div className="w-6 h-6 sm:w-8 sm:h-8 header-bg-primary rounded-full flex items-center justify-center header-brain-pulse">
+                <span className="header-text-strong text-xs sm:text-sm font-medium">
                   {user?.name?.charAt(0) || 'U'}
                 </span>
               </div>
@@ -207,28 +208,28 @@ const Header: React.FC = () => {
             </button>
 
             {isUserMenuOpen && (
-              <div className="absolute right-0 mt-2 w-48 border border-slate-800 rounded-lg shadow-2xl py-1 z-50 backdrop-blur-xl" style={{ backgroundColor: '#020617' }}>
-                <div className="px-4 py-2 border-b border-slate-800">
-                  <p className="text-sm font-medium text-slate-200 truncate">{user?.name}</p>
-                  <p className="text-sm text-slate-400 truncate">{user?.email}</p>
+              <div className="absolute right-0 mt-2 w-48 header-border rounded-lg header-shadow-magenta py-1 z-50 header-glass">
+                <div className="px-4 py-2 border-b header-border">
+                  <p className="text-sm font-medium header-text-strong truncate">{user?.name}</p>
+                  <p className="text-sm header-text-muted truncate">{user?.email}</p>
                 </div>
                 <button 
                   onClick={handleProfileClick}
-                  className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
+                  className="flex items-center w-full px-4 py-2 text-sm header-text-soft header-hover-bg header-hover-text transition-colors"
                 >
                   <User className="h-4 w-4 mr-2" />
                   Perfil
                 </button>
                 <button 
                   onClick={handleConfigurationClick}
-                  className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
+                  className="flex items-center w-full px-4 py-2 text-sm header-text-soft header-hover-bg header-hover-text transition-colors"
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Configuración
                 </button>
                 <button 
                   onClick={logout}
-                  className="flex items-center w-full px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 hover:text-slate-200 transition-colors"
+                  className="flex items-center w-full px-4 py-2 text-sm header-text-soft header-hover-bg header-hover-text transition-colors"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Cerrar sesión
@@ -241,33 +242,33 @@ const Header: React.FC = () => {
 
       {/* Mobile menu overlay */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden mt-4 border-t border-slate-800 pt-4">
+        <div className="lg:hidden mt-4 border-t header-border pt-4">
           <div className="space-y-4">
             {/* Mobile progress info */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1 text-sm text-slate-400">
-                  <CheckCircle className="h-4 w-4 text-green-400" />
+                <div className="flex items-center space-x-1 text-sm header-text-muted">
+                  <CheckCircle className="h-4 w-4 header-accent-success" />
                   <span>{progress.completed}</span>
                 </div>
-                <div className="flex items-center space-x-1 text-sm text-slate-400">
-                  <Clock className="h-4 w-4 text-blue-400" />
+                <div className="flex items-center space-x-1 text-sm header-text-muted">
+                  <Clock className="h-4 w-4 header-neon-cyan" />
                   <span>{progress.inProgress}</span>
                 </div>
-                <div className="flex items-center space-x-1 text-sm text-slate-400">
-                  <AlertTriangle className="h-4 w-4 text-yellow-400" />
+                <div className="flex items-center space-x-1 text-sm header-text-muted">
+                  <AlertTriangle className="h-4 w-4 header-accent-warning" />
                   <span>{progress.todo}</span>
                 </div>
               </div>
-              <div className="text-sm text-slate-400">
+              <div className="text-sm header-text-muted">
                 {progress.percentage}%
               </div>
             </div>
 
             {/* Mobile progress bar */}
-            <div className="w-full bg-slate-800 rounded-full h-2 border border-slate-700">
+            <div className="w-full header-bg-1 rounded-full h-2 border header-border header-shadow-cyan">
               <div 
-                className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full transition-all duration-300"
+                className="header-bg-primary h-2 rounded-full transition-all duration-300 header-brain-pulse"
                 style={{ width: `${progress.percentage}%` }}
               ></div>
             </div>
@@ -277,7 +278,7 @@ const Header: React.FC = () => {
               <select 
                 value={selectedBranch}
                 onChange={(e) => setSelectedBranch(e.target.value)}
-                className="w-full text-sm bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full text-sm header-glass header-border rounded-lg px-3 py-2 header-text-strong header-focus transition-colors"
               >
                 <option value="main">Branch: main</option>
                 <option value="develop">Branch: develop</option>
@@ -287,7 +288,7 @@ const Header: React.FC = () => {
               <select 
                 value={selectedEnvironment}
                 onChange={(e) => setSelectedEnvironment(e.target.value)}
-                className="w-full text-sm bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2 text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                className="w-full text-sm header-glass header-border rounded-lg px-3 py-2 header-text-strong header-focus transition-colors"
               >
                 <option value="development">Environment: Development</option>
                 <option value="staging">Environment: Staging</option>
@@ -296,20 +297,20 @@ const Header: React.FC = () => {
             </div>
 
             {/* Mobile issues */}
-            <div className="flex items-center justify-between bg-slate-800/50 border border-slate-700 rounded-lg px-3 py-2">
-              <span className="text-sm text-slate-400">Issues:</span>
+            <div className="flex items-center justify-between header-glass header-border rounded-lg px-3 py-2 header-shadow-magenta">
+              <span className="text-sm header-text-muted">Issues:</span>
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                  <span className="text-sm text-slate-400">{issues.critical}</span>
+                  <div className="w-2 h-2 header-accent-danger rounded-full header-brain-pulse"></div>
+                  <span className="text-sm header-text-muted">{issues.critical}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-                  <span className="text-sm text-slate-400">{issues.warning}</span>
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full header-brain-pulse"></div>
+                  <span className="text-sm header-text-muted">{issues.warning}</span>
                 </div>
                 <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span className="text-sm text-slate-400">{issues.info}</span>
+                  <div className="w-2 h-2 header-accent-primary rounded-full header-brain-pulse"></div>
+                  <span className="text-sm header-text-muted">{issues.info}</span>
                 </div>
               </div>
             </div>

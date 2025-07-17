@@ -1,0 +1,209 @@
+/* Header.css - Estilos específicos para el componente Header usando tokens Neuro-Nova */
+
+/* Importar los tokens base */
+@import '../styles/neuro-nova-tokens.css';
+
+/* Estilos específicos del Header */
+.header-container {
+  background: hsl(var(--nn-bg-1) / 0.75);
+  backdrop-filter: blur(var(--nn-blur-bg));
+  border-bottom: 1px solid hsl(var(--nn-panel-glass) / 0.3);
+  padding: 0.75rem 1rem;
+}
+
+.header-glass {
+  background: hsl(var(--nn-panel-glass) / 0.55);
+  backdrop-filter: blur(var(--nn-blur-glass)) saturate(140%);
+  border: 1px solid hsl(var(--nn-panel-glass) / 0.3);
+}
+
+.header-text-strong {
+  color: hsl(var(--nn-text-strong));
+}
+
+.header-text-soft {
+  color: hsl(var(--nn-text-soft));
+}
+
+.header-text-muted {
+  color: hsl(var(--nn-text-muted));
+}
+
+/* Colores neón actualizados para coincidir con ProjectList */
+.header-neon-cyan {
+  color: hsl(var(--nn-accent-cyan));
+  text-shadow: 0 0 10px hsl(var(--nn-accent-cyan) / 0.5);
+}
+
+.header-neon-magenta {
+  color: hsl(var(--nn-accent-magenta));
+  text-shadow: 0 0 10px hsl(var(--nn-accent-magenta) / 0.5);
+}
+
+.header-neon-lime {
+  color: hsl(var(--nn-accent-lime));
+  text-shadow: 0 0 10px hsl(var(--nn-accent-lime) / 0.5);
+}
+
+/* Fondos con gradientes como en ProjectList */
+.header-bg-primary {
+  background: linear-gradient(135deg, 
+    hsl(var(--nn-accent-cyan) / 0.8), 
+    hsl(var(--nn-accent-magenta) / 0.8));
+}
+
+.header-bg-neural {
+  background: linear-gradient(135deg, 
+    hsl(var(--nn-accent-cyan) / 0.1), 
+    hsl(var(--nn-accent-lime) / 0.1), 
+    hsl(var(--nn-accent-magenta) / 0.1));
+}
+
+/* Sombras neón actualizadas */
+.header-shadow-cyan {
+  box-shadow: 0 0 20px hsl(var(--nn-accent-cyan) / 0.4), 
+              0 0 40px hsl(var(--nn-accent-cyan) / 0.2);
+}
+
+.header-shadow-magenta {
+  box-shadow: 0 0 20px hsl(var(--nn-accent-magenta) / 0.4), 
+              0 0 40px hsl(var(--nn-accent-magenta) / 0.2);
+}
+
+.header-shadow-lime {
+  box-shadow: 0 0 20px hsl(var(--nn-accent-lime) / 0.4), 
+              0 0 40px hsl(var(--nn-accent-lime) / 0.2);
+}
+
+/* Versión estática sin animación */
+.header-brain-pulse {
+  box-shadow: 0 0 20px hsl(var(--nn-accent-cyan) / 0.4), 
+              0 0 40px hsl(var(--nn-accent-cyan) / 0.2);
+  /* Removida la animación headerBrainPulse */
+}
+
+/* Versión estática sin animación */
+.header-flow-lines {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    hsl(var(--nn-accent-cyan) / 0.3) 50%, 
+    transparent 100%);
+  background-size: 200px 1px;
+  /* Removida la animación headerFlowLines */
+}
+
+.header-border {
+  border-color: hsl(var(--nn-panel-glass) / 0.3);
+}
+
+/* Fondos de colores base */
+.header-bg-0 {
+  background-color: hsl(var(--nn-bg-0));
+}
+
+.header-bg-1 {
+  background-color: hsl(var(--nn-bg-1));
+}
+
+/* Acentos de color */
+.header-accent-primary {
+  background-color: hsl(var(--nn-accent-cyan));
+  color: hsl(var(--nn-bg-0));
+}
+
+.header-accent-secondary {
+  background-color: hsl(var(--nn-accent-magenta));
+  color: hsl(var(--nn-bg-0));
+}
+
+.header-accent-tertiary {
+  background-color: hsl(var(--nn-accent-lime));
+  color: hsl(var(--nn-bg-0));
+}
+
+.header-accent-success {
+  color: hsl(var(--nn-accent-lime));
+  text-shadow: 0 0 8px hsl(var(--nn-accent-lime) / 0.4);
+}
+
+.header-accent-warning {
+  color: hsl(var(--nn-accent-magenta));
+  text-shadow: 0 0 8px hsl(var(--nn-accent-magenta) / 0.4);
+}
+
+.header-accent-danger {
+  background-color: hsl(var(--nn-accent-magenta));
+  color: hsl(var(--nn-text-strong));
+}
+
+/* Efectos de cristal como en ProjectList */
+.header-glass-panel {
+  background: hsl(var(--nn-panel-glass) / 0.55);
+  backdrop-filter: blur(var(--nn-blur-glass)) saturate(140%);
+  border: 1px solid hsl(var(--nn-panel-glass) / 0.3);
+  border-radius: var(--nn-radius-lg);
+}
+
+/* Estados hover actualizados */
+.header-hover-bg:hover {
+  background-color: hsl(var(--nn-bg-1));
+  transition: all 0.3s ease;
+}
+
+.header-hover-text:hover {
+  color: hsl(var(--nn-text-strong));
+  transition: all 0.3s ease;
+}
+
+.header-hover-accent:hover {
+  background-color: hsl(var(--nn-accent-magenta));
+  box-shadow: 0 0 20px hsl(var(--nn-accent-magenta) / 0.4);
+  transition: all 0.3s ease;
+}
+
+.header-hover-cyan:hover {
+  color: hsl(var(--nn-accent-cyan));
+  text-shadow: 0 0 10px hsl(var(--nn-accent-cyan) / 0.5);
+  transition: all 0.3s ease;
+}
+
+.header-hover-lime:hover {
+  color: hsl(var(--nn-accent-lime));
+  text-shadow: 0 0 10px hsl(var(--nn-accent-lime) / 0.5);
+  transition: all 0.3s ease;
+}
+
+/* Focus states actualizados */
+.header-focus:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--nn-accent-cyan) / 0.5), 
+              0 0 12px hsl(var(--nn-accent-cyan) / 0.6);
+  transition: all 0.3s ease;
+}
+
+.header-focus-lime:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--nn-accent-lime) / 0.5), 
+              0 0 12px hsl(var(--nn-accent-lime) / 0.6);
+  transition: all 0.3s ease;
+}
+
+.header-focus-magenta:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--nn-accent-magenta) / 0.5), 
+              0 0 12px hsl(var(--nn-accent-magenta) / 0.6);
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .header-container {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .header-container {
+    padding: 1rem 1.5rem;
+  }
+}

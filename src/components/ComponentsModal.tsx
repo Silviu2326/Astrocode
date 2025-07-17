@@ -149,39 +149,39 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
       id: '2',
       name: 'Button',
       category: 'button',
-      description: 'Botón reutilizable con múltiples variantes',
+      description: 'Botón reutilizable con múltiples variantes responsive',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       variants: [
         {
           id: '1',
           name: 'Primary',
-          description: 'Botón principal',
-          code: `<button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+          description: 'Botón principal responsive',
+          code: `<button className="bg-primary hover:bg-primaryHover text-textInverse xs:px-2 xs:py-1 sm:px-3 sm:py-2 md:px-4 md:py-2 lg:px-6 lg:py-3 xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
         },
         {
           id: '2',
           name: 'Secondary',
-          description: 'Botón secundario',
-          code: `<button className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+          description: 'Botón secundario responsive',
+          code: `<button className="bg-secondary hover:bg-secondaryHover text-textInverse xs:px-2 xs:py-1 sm:px-3 sm:py-2 md:px-4 md:py-2 lg:px-6 lg:py-3 xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
         },
         {
           id: '3',
           name: 'Outline',
-          description: 'Botón con borde',
-          code: `<button className="border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+          description: 'Botón con borde responsive',
+          code: `<button className="border border-primary text-primary hover:bg-primary hover:text-textInverse xs:px-2 xs:py-1 sm:px-3 sm:py-2 md:px-4 md:py-2 lg:px-6 lg:py-3 xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
         },
         {
           id: '4',
           name: 'Ghost',
-          description: 'Botón transparente',
-          code: `<button className="text-blue-500 hover:bg-blue-500/10 px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+          description: 'Botón transparente responsive',
+          code: `<button className="text-primary hover:bg-primaryLight xs:px-2 xs:py-1 sm:px-3 sm:py-2 md:px-4 md:py-2 lg:px-6 lg:py-3 xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
         },
         {
           id: '5',
           name: 'Danger',
-          description: 'Botón de peligro',
-          code: `<button className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
+          description: 'Botón de peligro responsive',
+          code: `<button className="bg-error hover:bg-errorDark text-textInverse xs:px-2 xs:py-1 sm:px-3 sm:py-2 md:px-4 md:py-2 lg:px-6 lg:py-3 xs:text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={disabled}>\n  {children}\n</button>`
         }
       ],
       props: [
@@ -196,33 +196,33 @@ export default function ComponentsModal({ isOpen, onClose }: ComponentsModalProp
       id: '3',
       name: 'Table',
       category: 'table',
-      description: 'Tabla reutilizable con funcionalidades básicas',
+      description: 'Tabla reutilizable responsive con funcionalidades básicas',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       variants: [
         {
           id: '1',
           name: 'Basic',
-          description: 'Tabla básica',
-          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-white border border-gray-200">\n    <thead className="bg-gray-50">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-white divide-y divide-gray-200">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+          description: 'Tabla básica responsive',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-surface border border-border">\n    <thead className="bg-backgroundSecondary">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="xs:px-2 xs:py-1 sm:px-4 sm:py-2 md:px-6 md:py-3 text-left xs:text-xs sm:text-sm md:text-base font-medium text-textSecondary uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-surface divide-y divide-border">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="xs:px-2 xs:py-1 sm:px-4 sm:py-2 md:px-6 md:py-4 whitespace-nowrap xs:text-xs sm:text-sm md:text-base text-text">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
         },
         {
           id: '2',
           name: 'Striped',
-          description: 'Tabla con filas alternadas',
-          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-white border border-gray-200">\n    <thead className="bg-gray-50">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-white divide-y divide-gray-200">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+          description: 'Tabla con filas alternadas responsive',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-surface border border-border">\n    <thead className="bg-backgroundSecondary">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="xs:px-2 xs:py-1 sm:px-4 sm:py-2 md:px-6 md:py-3 text-left xs:text-xs sm:text-sm md:text-base font-medium text-textSecondary uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-surface divide-y divide-border">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-surface' : 'bg-backgroundSecondary'}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="xs:px-2 xs:py-1 sm:px-4 sm:py-2 md:px-6 md:py-4 whitespace-nowrap xs:text-xs sm:text-sm md:text-base text-text">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
         },
         {
           id: '3',
           name: 'Dark',
-          description: 'Tabla con tema oscuro',
-          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-slate-800 border border-slate-700">\n    <thead className="bg-slate-900">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-slate-800 divide-y divide-slate-700">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-6 py-4 whitespace-nowrap text-sm text-slate-200">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+          description: 'Tabla con tema oscuro responsive',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-backgroundSecondary border border-borderLight">\n    <thead className="bg-background">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="xs:px-2 xs:py-1 sm:px-4 sm:py-2 md:px-6 md:py-3 text-left xs:text-xs sm:text-sm md:text-base font-medium text-textMuted uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-backgroundSecondary divide-y divide-borderLight">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="xs:px-2 xs:py-1 sm:px-4 sm:py-2 md:px-6 md:py-4 whitespace-nowrap xs:text-xs sm:text-sm md:text-base text-textSecondary">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
         },
         {
           id: '4',
           name: 'Compact',
-          description: 'Tabla compacta',
-          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-white border border-gray-200">\n    <thead className="bg-gray-50">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-white divide-y divide-gray-200">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
+          description: 'Tabla compacta responsive',
+          code: `<div className="overflow-x-auto">\n  <table className="min-w-full bg-surface border border-border">\n    <thead className="bg-backgroundSecondary">\n      <tr>\n        {headers.map((header, index) => (\n          <th key={index} className="xs:px-1 xs:py-1 sm:px-2 sm:py-1 md:px-3 md:py-2 text-left xs:text-xs sm:text-sm font-medium text-textSecondary uppercase tracking-wider">\n            {header}\n          </th>\n        ))}\n      </tr>\n    </thead>\n    <tbody className="bg-surface divide-y divide-border">\n      {data.map((row, rowIndex) => (\n        <tr key={rowIndex}>\n          {row.map((cell, cellIndex) => (\n            <td key={cellIndex} className="xs:px-1 xs:py-1 sm:px-2 sm:py-1 md:px-3 md:py-2 whitespace-nowrap xs:text-xs sm:text-sm text-text">\n              {cell}\n            </td>\n          ))}\n        </tr>\n      ))}\n    </tbody>\n  </table>\n</div>`
         }
       ],
       props: [

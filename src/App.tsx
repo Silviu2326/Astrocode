@@ -8,6 +8,7 @@ import ProjectList from './pages/ProjectList';
 import ProjectEdit from './pages/ProjectEdit';
 import ConfiguracionPage from './pages/ConfiguracionPage';
 import PerfilPage from './pages/PerfilPage';
+import AutomatizacionesPage from './pages/AutomatizacionesPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -50,6 +51,17 @@ function AppContent() {
                 <ProjectProvider>
                   <Header />
                   <ProjectList />
+                </ProjectProvider>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/automatizaciones" 
+            element={
+              <ProtectedRoute>
+                <ProjectProvider>
+                  <Header />
+                  <AutomatizacionesPage />
                 </ProjectProvider>
               </ProtectedRoute>
             } 

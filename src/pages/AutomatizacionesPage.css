@@ -1,0 +1,229 @@
+/* AutomatizacionesPage - Estilos específicos para Neuro-Nova UI */
+
+/* Importar tokens de Neuro-Nova */
+@import '../styles/neuro-nova-tokens.css';
+
+/* Clases de fondo */
+.bg-nn-bg0 {
+  background-color: hsl(var(--nn-bg-0));
+}
+
+.bg-nn-bg1 {
+  background-color: hsl(var(--nn-bg-1));
+}
+
+.bg-nn-bg1\/50 {
+  background-color: hsl(var(--nn-bg-1) / 0.5);
+}
+
+.bg-nn-bg0\/50 {
+  background-color: hsl(var(--nn-bg-0) / 0.5);
+}
+
+/* Clases de texto */
+.text-nn-text-strong {
+  color: hsl(var(--nn-text-strong));
+}
+
+.text-nn-text-soft {
+  color: hsl(var(--nn-text-soft));
+}
+
+.text-nn-text-muted {
+  color: hsl(var(--nn-text-muted));
+}
+
+.placeholder-nn-text-muted::placeholder {
+  color: hsl(var(--nn-text-muted));
+}
+
+/* Colores de acento */
+.text-nn-cyan {
+  color: hsl(var(--nn-accent-cyan));
+}
+
+.text-nn-lime {
+  color: hsl(var(--nn-accent-lime));
+}
+
+.text-nn-mag {
+  color: hsl(var(--nn-accent-magenta));
+}
+
+/* Bordes */
+.border-nn-cyan\/30 {
+  border-color: hsl(var(--nn-accent-cyan) / 0.3);
+}
+
+.border-nn-lime\/30 {
+  border-color: hsl(var(--nn-accent-lime) / 0.3);
+}
+
+.border-nn-mag\/30 {
+  border-color: hsl(var(--nn-accent-magenta) / 0.3);
+}
+
+.border-nn-text-muted\/30 {
+  border-color: hsl(var(--nn-text-muted) / 0.3);
+}
+
+.border-nn-panel-glass\/30 {
+  border-color: hsl(var(--nn-panel-glass) / 0.3);
+}
+
+.border-nn-cyan\/50 {
+  border-color: hsl(var(--nn-accent-cyan) / 0.5);
+}
+
+.border-nn-mag\/50 {
+  border-color: hsl(var(--nn-accent-magenta) / 0.5);
+}
+
+/* Estados de focus */
+.focus\:border-nn-cyan\/50:focus {
+  border-color: hsl(var(--nn-accent-cyan) / 0.5);
+}
+
+.focus\:ring-neon-cyan:focus {
+  box-shadow: 0 0 0 2px hsl(var(--nn-accent-cyan) / 0.5), 0 0 12px hsl(var(--nn-accent-cyan) / 0.6);
+}
+
+/* Estados de hover */
+.hover\:border-nn-cyan\/50:hover {
+  border-color: hsl(var(--nn-accent-cyan) / 0.5);
+}
+
+.hover\:border-nn-mag\/50:hover {
+  border-color: hsl(var(--nn-accent-magenta) / 0.5);
+}
+
+.hover\:text-nn-cyan:hover {
+  color: hsl(var(--nn-accent-cyan));
+}
+
+.hover\:text-nn-mag:hover {
+  color: hsl(var(--nn-accent-magenta));
+}
+
+/* Sombras neón */
+.shadow-neon-cyan {
+  box-shadow: var(--nn-shadow-cyan);
+}
+
+.shadow-neon-lime {
+  box-shadow: var(--nn-shadow-lime);
+}
+
+.shadow-neon-mag {
+  box-shadow: var(--nn-shadow-magenta);
+}
+
+.hover\:shadow-neon-cyan:hover {
+  box-shadow: var(--nn-shadow-cyan);
+}
+
+.hover\:shadow-neon-lime:hover {
+  box-shadow: var(--nn-shadow-lime);
+}
+
+.hover\:shadow-neon-mag:hover {
+  box-shadow: var(--nn-shadow-magenta);
+}
+
+/* Efecto glass */
+.glass {
+  background: hsl(var(--nn-panel-glass) / 0.55);
+  backdrop-filter: blur(var(--nn-blur-glass)) saturate(140%);
+  border: 1px solid hsl(var(--nn-panel-glass) / 0.3);
+}
+
+/* Gradientes */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.from-nn-bg0 {
+  --tw-gradient-from: hsl(var(--nn-bg-0));
+  --tw-gradient-to: hsl(var(--nn-bg-0) / 0);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+.via-nn-bg1\/20 {
+  --tw-gradient-to: hsl(var(--nn-bg-1) / 0);
+  --tw-gradient-stops: var(--tw-gradient-from), hsl(var(--nn-bg-1) / 0.2), var(--tw-gradient-to);
+}
+
+.to-nn-bg0 {
+  --tw-gradient-to: hsl(var(--nn-bg-0));
+}
+
+/* Animaciones */
+.animate-flow-lines {
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    hsl(var(--nn-accent-cyan) / 0.3) 50%, 
+    transparent 100%);
+  background-size: 200px 1px;
+  animation: flowLines 3s linear infinite;
+}
+
+.animate-brain-pulse {
+  animation: brainPulse var(--nn-dur-slow) ease-in-out infinite alternate;
+}
+
+/* Botón nn-button */
+.nn-button {
+  background: hsl(var(--nn-panel-glass) / 0.55);
+  backdrop-filter: blur(var(--nn-blur-glass)) saturate(140%);
+  border: 1px solid hsl(var(--nn-panel-glass) / 0.3);
+  color: hsl(var(--nn-text-strong));
+  transition: all 0.3s ease;
+}
+
+.nn-button:hover {
+  background: hsl(var(--nn-panel-glass) / 0.75);
+  transform: translateY(-1px);
+}
+
+/* Escalado en hover */
+.hover\:scale-\[1\.02\]:hover {
+  transform: scale(1.02);
+}
+
+/* Keyframes para las animaciones */
+@keyframes flowLines {
+  from { background-position: 0 0; }
+  to   { background-position: 200px 0; }
+}
+
+@keyframes brainPulse {
+  0%   { 
+    box-shadow: var(--nn-shadow-cyan);
+    transform: scale(1);
+  }
+  100% { 
+    box-shadow: 0 0 16px hsl(var(--nn-accent-cyan) / 1), 0 0 32px hsl(var(--nn-accent-cyan) / 0.8);
+    transform: scale(1.02);
+  }
+}
+
+/* Utilidades adicionales */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.duration-300 {
+  transition-duration: 300ms;
+}
+
+/* Responsive utilities */
+@media (min-width: 768px) {
+  .md\:flex-row {
+    flex-direction: row;
+  }
+  
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

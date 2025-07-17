@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Importar tokens de Neuro-Nova */
+@import './styles/neuro-nova-tokens.css';
+
+/* Configuración base del tema */
+@layer base {
+  body {
+    @apply bg-nn-bg0 text-nn-text-strong;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  
+  html {
+    @apply bg-nn-bg0;
+  }
+  
+  * {
+    @apply border-nn-glass/20;
+  }
+}
+
+/* Componentes personalizados */
+@layer components {
+  .nn-button {
+    @apply px-6 py-3 rounded-lg bg-nn-glass/30 border border-nn-cyan/30 text-nn-text-strong;
+    @apply hover:bg-nn-cyan/10 hover:border-nn-cyan/60;
+    @apply transition-all duration-300;
+    backdrop-filter: blur(20px);
+  }
+  
+  .nn-input {
+    @apply w-full px-4 py-3 rounded-lg bg-nn-glass/20 border border-nn-glass/40;
+    @apply text-nn-text-strong placeholder-nn-text-muted;
+    @apply focus:border-nn-cyan/60 focus:outline-none;
+    @apply transition-all duration-300;
+    backdrop-filter: blur(20px);
+  }
+}
