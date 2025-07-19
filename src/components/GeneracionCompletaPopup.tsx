@@ -11,6 +11,7 @@ interface GeneracionCompletaPopupProps {
 const GeneracionCompletaPopup: React.FC<GeneracionCompletaPopupProps> = ({ onClose }) => {
   const { currentProject } = useProject();
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingRest, setIsGeneratingRest] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [generationResult, setGenerationResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -22,76 +23,129 @@ const [activeTab, setActiveTab] = useState<'pages' | 'entities' | 'controllers' 
   console.log('🔍 GeneracionCompletaPopup - currentProject:', currentProject);
   console.log('🔍 GeneracionCompletaPopup - generationResult:', generationResult);
 
-  const handleGeneratePages = async () => {
-    console.log('🚀 handleGeneratePages - Iniciando generación');
-    console.log('🚀 currentProject?.id:', currentProject?.id);
+const handleGeneratePages = async () => {
+  console.log('🚀 handleGeneratePages - Iniciando generación de páginas');
+  console.log('🚀 currentProject?.id:', currentProject?.id);
+  
+  if (!currentProject?.id) {
+    console.log('❌ No hay proyecto seleccionado');
+    setError('No hay un proyecto seleccionado');
+    return;
+  }
+
+  setIsGenerating(true);
+  setError(null);
+
+  try {
+    let result;
     
-    if (!currentProject?.id) {
-      console.log('❌ No hay proyecto seleccionado');
-      setError('No hay un proyecto seleccionado');
-      return;
+    console.log('🔍 Verificando si hay páginas existentes:', generationResult?.generatedPages?.length);
+    
+    if (generationResult && generationResult.generatedPages && generationResult.generatedPages.length > 0) {
+      console.log('📄 Generando páginas adicionales...');
+      // Si ya hay páginas generadas, usar la función de páginas adicionales
+      const existingPages = generationResult.generatedPages.map((page: any) => ({
+        name: page.name,
+        route: page.route,
+        description: page.description,
+        isEssential: page.isEssential,
+        priority: page.priority
+      }));
+      
+      console.log('📄 existingPages:', existingPages);
+      
+      result = await projectService.generateAdditionalPages(currentProject.id, existingPages);
+      
+      console.log('✅ Resultado de páginas adicionales:', result);
+      
+      // Agregar las nuevas páginas a la lista existente
+      const newGenerationResult = {
+        ...generationResult,
+        generatedPages: [...generationResult.generatedPages, ...result.generatedPages],
+        totalPages: generationResult.generatedPages.length + result.totalNewPages,
+        totalNewPages: result.totalNewPages,
+        existingPagesCount: result.existingPagesCount,
+        message: result.message
+      };
+      
+      console.log('🔄 Nuevo generationResult combinado:', newGenerationResult);
+      setGenerationResult(newGenerationResult);
+    } else {
+      console.log('🆕 Primera generación de páginas...');
+      // Primera generación, usar la función refactorizada que solo genera páginas
+      result = await projectService.generatePagesWithGemini(currentProject.id);
+      console.log('✅ Resultado de primera generación:', result);
+      setGenerationResult(result);
     }
+    
+    console.log('🎉 Páginas generadas exitosamente:', result);
+  } catch (err) {
+    console.error('💥 Error al generar páginas:', err);
+    setError(err instanceof Error ? err.message : 'Error al generar páginas');
+  } finally {
+    setIsGenerating(false);
+    console.log('🏁 Generación de páginas finalizada');
+  }
+};
+const handleGenerateRestOfStructure = async () => {
+  console.log('🚀 handleGenerateRestOfStructure - Iniciando generación del resto de la estructura');
+  
+  if (!currentProject?.id) {
+    console.log('❌ No hay proyecto seleccionado');
+    setError('No hay un proyecto seleccionado');
+    return;
+  }
 
-    setIsGenerating(true);
-    setError(null);
+  if (!generationResult?.generatedPages || generationResult.generatedPages.length === 0) {
+    setError('Primero debes generar páginas antes de generar el resto de la estructura');
+    return;
+  }
 
-    try {
-      let result;
-      
-      console.log('🔍 Verificando si hay páginas existentes:', generationResult?.generatedPages?.length);
-      
-      if (generationResult && generationResult.generatedPages && generationResult.generatedPages.length > 0) {
-        console.log('📄 Generando páginas adicionales...');
-        // Si ya hay páginas generadas, usar la función de páginas adicionales
-        const existingPages = generationResult.generatedPages.map((page: any) => ({
-          name: page.name,
-          route: page.route,
-          description: page.description,
-          isEssential: page.isEssential,
-          priority: page.priority
-        }));
-        
-        console.log('📄 existingPages:', existingPages);
-        
-        result = await projectService.generateAdditionalPages(currentProject.id, existingPages);
-        
-        console.log('✅ Resultado de páginas adicionales:', result);
-        
-        // Agregar las nuevas páginas a la lista existente
-        const newGenerationResult = {
-          ...result,
-          generatedPages: [...generationResult.generatedPages, ...result.generatedPages],
-          totalPages: generationResult.generatedPages.length + result.totalNewPages,
-          totalNewPages: result.totalNewPages,
-          existingPagesCount: result.existingPagesCount,
-          // Mantener el esquema ER existente si no se genera uno nuevo
-          erSchema: result.erSchema || generationResult.erSchema,
-          // Mantener controladores existentes
-          controllers: result.controllers || generationResult.controllers,
-          // Mantener user stories existentes
-          userStories: result.userStories || generationResult.userStories
-        };
-        
-        console.log('🔄 Nuevo generationResult combinado:', newGenerationResult);
-        setGenerationResult(newGenerationResult);
-      } else {
-        console.log('🆕 Primera generación de páginas...');
-        // Primera generación, usar la función original
-        result = await projectService.generatePages(currentProject.id);
-        console.log('✅ Resultado de primera generación:', result);
-        setGenerationResult(result);
-      }
-      
-      console.log('🎉 Páginas, esquema ER, controladores y user stories generados exitosamente:', result);
-    } catch (err) {
-      console.error('💥 Error al generar páginas:', err);
-      setError(err instanceof Error ? err.message : 'Error al generar páginas');
-    } finally {
-      setIsGenerating(false);
-      console.log('🏁 Generación finalizada');
-    }
-  };
+  setIsGeneratingRest(true);
+  setError(null);
 
+  try {
+    console.log('🔧 Generando esquema ER, controladores y user stories...');
+    
+    const pages = generationResult.generatedPages.map((page: any) => ({
+      name: page.name,
+      route: page.route,
+      description: page.description,
+      isEssential: page.isEssential,
+      priority: page.priority
+    }));
+    
+    console.log('📄 Páginas para generar estructura:', pages);
+    
+    const result = await projectService.generarrestodepaginasconia(currentProject.id, pages);
+    
+    console.log('✅ Resultado de generación del resto:', result);
+    
+    // Combinar con el resultado existente
+    const updatedGenerationResult = {
+      ...generationResult,
+      erSchema: result.erSchema,
+      controllers: result.controllers,
+      userStories: result.userStories,
+      userStoriesResults: result.userStoriesResults,
+      totalEntities: result.totalEntities,
+      totalRelationships: result.totalRelationships,
+      totalUserStories: result.totalUserStories,
+      message: `${generationResult.message} + Estructura completa generada`
+    };
+    
+    console.log('🔄 Resultado combinado final:', updatedGenerationResult);
+    setGenerationResult(updatedGenerationResult);
+    
+    console.log('🎉 Estructura completa generada exitosamente');
+  } catch (err) {
+    console.error('💥 Error al generar el resto de la estructura:', err);
+    setError(err instanceof Error ? err.message : 'Error al generar el resto de la estructura');
+  } finally {
+    setIsGeneratingRest(false);
+    console.log('🏁 Generación del resto finalizada');
+  }
+};
   const handleDeletePage = (pageId: string) => {
     if (generationResult) {
       const updatedPages = generationResult.generatedPages.filter((page: any) => page.id !== pageId);
@@ -488,7 +542,20 @@ const [activeTab, setActiveTab] = useState<'pages' | 'entities' | 'controllers' 
                 </div>
               </div>
             )}
-
+        <button
+          onClick={handleGenerateRestOfStructure}
+          disabled={isGeneratingRest}
+          className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded flex items-center gap-2"
+        >
+          {isGeneratingRest ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              Generando Estructura...
+            </>
+          ) : (
+            'Generar Esquema ER, Controladores y User Stories'
+          )}
+        </button>
             {/* Tab de Esquema ER */}
             {activeTab === 'entities' && generationResult.erSchema && (
               <div className="mb-4">

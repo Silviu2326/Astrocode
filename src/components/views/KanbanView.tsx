@@ -3,6 +3,7 @@ import { Plus, AlertTriangle, RefreshCw, Edit3, BookOpen, ArrowRight, ChevronDow
 import { gsap } from 'gsap';
 import { AppPage, UserStory } from '../../types';
 import UserStoryCard from '../UserStoryCard';
+import './KanbanView.css';
 
 interface KanbanViewProps {
   currentProject: any;
@@ -114,30 +115,30 @@ export default function KanbanView({
   const totalStories = allUserStories.length;
 
   return (
-    <div className="pb-8 text-white font-sans" ref={containerRef}>
+    <div className="kanban-container" ref={containerRef}>
       {/* Modern Header with Glassmorphism */}
       <div 
         ref={headerRef}
-        className="bg-gradient-to-br from-gray-900/80 to-slate-800/80 backdrop-blur-xl border border-slate-700/50 rounded-3xl shadow-2xl mb-8 p-8 relative overflow-hidden"
+        className="kanban-header"
       >
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 animate-pulse"></div>
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-pink-500/20 to-orange-500/20 rounded-full blur-2xl"></div>
+        <div className="kanban-header-bg"></div>
+        <div className="kanban-header-orb-1"></div>
+        <div className="kanban-header-orb-2"></div>
         
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-2xl border border-indigo-400/30">
-                <Sparkles className="h-8 w-8 text-indigo-300" />
+              <div className="kanban-icon-container">
+                <Sparkles className="h-8 w-8 kanban-icon" />
               </div>
               <div>
-                <h3 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <h3 className="kanban-title">
                   Kanban Board
                 </h3>
-                <p className="text-slate-400 text-sm mt-1 flex items-center space-x-2">
+                <p className="kanban-subtitle">
                   <span>Gestiona todas las historias de usuario</span>
-                  <span className="px-3 py-1 bg-slate-700/50 rounded-full text-xs font-medium border border-slate-600">
+                  <span className="kanban-badge">
                     {totalStories} historias
                   </span>
                 </p>
@@ -147,9 +148,9 @@ export default function KanbanView({
             <div className="flex items-center space-x-3">
               <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="group p-3 rounded-2xl bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-all duration-300 backdrop-blur-sm"
+                className="kanban-btn-expand"
               >
-                <ChevronDown className={`h-6 w-6 text-slate-400 transition-transform duration-300 group-hover:text-white ${
+                <ChevronDown className={`h-6 w-6 kanban-text-secondary transition-transform duration-300 group-hover:text-white ${
                   isExpanded ? 'rotate-180' : ''
                 }`} />
               </button>
@@ -158,7 +159,7 @@ export default function KanbanView({
                 <>
                   <button
                     onClick={() => openUserStoryModal(currentProject.pages[0].id)}
-                    className="group flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-indigo-600/80 to-purple-600/80 border border-indigo-500/50 rounded-2xl hover:from-indigo-500/90 hover:to-purple-500/90 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm"
+                    className="kanban-btn-primary"
                   >
                     <Plus className="h-5 w-5 transition-transform duration-300 group-hover:rotate-90" />
                     <span className="font-semibold">Nueva Historia</span>
@@ -167,7 +168,7 @@ export default function KanbanView({
                   {currentProject.githubUrl && (
                     <button
                       onClick={() => handleOpenIaGenerateModal(currentProject.pages[0].id)}
-                      className="group flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-blue-600/80 to-cyan-600/80 border border-blue-500/50 rounded-2xl hover:from-blue-500/90 hover:to-cyan-500/90 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm"
+                      className="kanban-btn-secondary"
                       title="Generar historias con IA"
                     >
                       <RefreshCw className="h-5 w-5 transition-transform duration-300 group-hover:rotate-180" />
@@ -192,16 +193,16 @@ export default function KanbanView({
                 <div 
                   key={column.id}
                   ref={el => columnsRef.current[index] = el!}
-                  className="group relative"
+                  className="kanban-column"
                 >
                   {/* Column Container with Modern Design */}
-                  <div className="bg-gradient-to-br from-slate-900/60 to-gray-900/60 backdrop-blur-xl border border-slate-800/50 rounded-3xl shadow-2xl overflow-hidden hover:shadow-3xl transition-all duration-500 hover:scale-[1.02]">
+                  <div className="kanban-column-container kanban-shadow-3xl">
                     {/* Column Header */}
-                    <div className="p-6 border-b border-slate-800/50 bg-gradient-to-r from-slate-900/80 to-gray-900/80 backdrop-blur-lg">
+                    <div className="kanban-column-header">
                       <div className="flex items-center justify-between">
-                        <h4 className="font-bold text-xl tracking-wide text-white">{column.title}</h4>
+                        <h4 className="kanban-column-title">{column.title}</h4>
                         <div className="flex items-center space-x-2">
-                          <span className="bg-gradient-to-r from-slate-700/80 to-slate-600/80 text-slate-200 text-sm font-bold px-4 py-2 rounded-full border border-slate-600/50 backdrop-blur-sm">
+                          <span className="kanban-column-count">
                             {columnStories.length}
                           </span>
                         </div>
@@ -210,14 +211,14 @@ export default function KanbanView({
                     
                     {/* Column Content */}
                     <div 
-                      className="p-6 space-y-4 min-h-[600px] relative"
+                      className="kanban-column-content"
                       onDragOver={handleDragOver}
                       onDrop={(e) => handleDrop(e, column.id)}
                     >
                       {/* Animated Background Pattern */}
-                      <div className="absolute inset-0 opacity-5">
-                        <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full blur-xl"></div>
-                        <div className="absolute bottom-4 left-4 w-12 h-12 bg-gradient-to-tr from-pink-500 to-orange-500 rounded-full blur-lg"></div>
+                      <div className="kanban-column-bg-pattern">
+                        <div className="kanban-column-orb-1"></div>
+                        <div className="kanban-column-orb-2"></div>
                       </div>
                       
                       {columnStories.map((userStory, storyIndex) => {
@@ -228,10 +229,9 @@ export default function KanbanView({
                             key={userStory.id}
                             draggable
                             onDragStart={(e) => handleDragStart(e, userStory.id, 'userStory', pageId || '')}
-                            className="cursor-grab active:cursor-grabbing transform hover:scale-105 transition-all duration-300 relative z-10"
+                            className="kanban-story-card kanban-fade-in-up"
                             style={{
-                              animation: `fadeInUp 0.5s ${storyIndex * 0.1}s ease-out forwards`,
-                              opacity: 0
+                              animationDelay: `${storyIndex * 0.1}s`
                             }}
                           >
                             <UserStoryCard 
@@ -248,11 +248,11 @@ export default function KanbanView({
                       })}
                       
                       {columnStories.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-full text-center py-16 text-slate-500 relative z-10">
-                          <div className="p-6 bg-gradient-to-br from-slate-800/30 to-gray-800/30 rounded-3xl border border-slate-700/30 backdrop-blur-sm">
-                            <BookOpen className="h-20 w-20 mx-auto mb-6 opacity-40" />
-                            <p className="font-medium text-lg mb-2">Arrastra historias aquí</p>
-                            <p className="text-sm text-slate-600">o crea una nueva historia</p>
+                        <div className="kanban-empty-column">
+                          <div className="kanban-empty-container">
+                            <BookOpen className="h-20 w-20 mx-auto mb-6 opacity-40 kanban-icon-secondary" />
+                            <p className="font-medium text-lg mb-2 kanban-text-primary">Arrastra historias aquí</p>
+                            <p className="text-sm kanban-text-muted">o crea una nueva historia</p>
                           </div>
                         </div>
                       )}
@@ -263,15 +263,15 @@ export default function KanbanView({
             })}
           </div>
         ) : (
-          <div className="text-center py-20 bg-gradient-to-br from-slate-900/50 to-gray-900/50 backdrop-blur-xl border border-slate-800/50 rounded-3xl">
+          <div className="kanban-empty-state">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 rounded-3xl"></div>
+              <div className="kanban-empty-bg"></div>
               <div className="relative z-10 p-8">
-                <BookOpen className="h-24 w-24 mx-auto text-slate-600 mb-8" />
-                <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                <BookOpen className="h-24 w-24 mx-auto kanban-text-muted mb-8" />
+                <h3 className="kanban-empty-title">
                   No hay historias de usuario
                 </h3>
-                <p className="text-slate-400 mb-10 max-w-md mx-auto text-lg">
+                <p className="kanban-empty-text">
                   {currentProject.pages.length === 0 
                     ? 'Comienza creando tu primera página para organizar las historias de usuario'
                     : 'Comienza creando historias de usuario para gestionar las tareas del proyecto'
@@ -281,7 +281,7 @@ export default function KanbanView({
                 {currentProject.pages.length === 0 ? (
                   <button
                     onClick={() => setIsPageModalOpen(true)}
-                    className="group flex items-center space-x-3 mx-auto bg-gradient-to-r from-blue-600/80 to-cyan-600/80 px-8 py-4 rounded-2xl hover:from-blue-500/90 hover:to-cyan-500/90 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm border border-blue-500/50"
+                    className="kanban-empty-btn"
                   >
                     <span className="font-semibold text-lg">Crear Primera Página</span>
                     <ArrowRight className="h-6 w-6 transition-transform duration-300 group-hover:translate-x-1" />
@@ -289,7 +289,7 @@ export default function KanbanView({
                 ) : (
                   <button
                     onClick={() => openUserStoryModal(currentProject.pages[0].id)}
-                    className="group flex items-center space-x-3 mx-auto bg-gradient-to-r from-indigo-600/80 to-purple-600/80 px-8 py-4 rounded-2xl hover:from-indigo-500/90 hover:to-purple-500/90 transition-all duration-300 transform hover:scale-105 shadow-lg backdrop-blur-sm border border-indigo-500/50"
+                    className="kanban-empty-btn-alt"
                   >
                     <span className="font-semibold text-lg">Crear Primera Historia</span>
                     <ArrowRight className="h-6 w-6 transition-transform duration-300 group-hover:translate-x-1" />
@@ -300,24 +300,6 @@ export default function KanbanView({
           </div>
         )}
       </div>
-      
-      {/* Custom CSS for animations */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        .hover\:shadow-3xl:hover {
-          box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.5);
-        }
-      `}</style>
     </div>
   );
 }

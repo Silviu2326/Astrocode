@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Calendar, Users, LayoutGrid, FileText, FolderTree, Github, RefreshCw, Edit3, X, Trash2, Clock, GitBranch, Activity, MessageSquare, Code, ChevronLeft, ChevronRight, Bot, Terminal, FileCode, Shield, Palette, Package, Loader, BarChart3, Circle, Server } from 'lucide-react';
+import { Plus, Calendar, Users, LayoutGrid, FileText, FolderTree, Github, RefreshCw, Edit3, X, Trash2, Clock, GitBranch, Activity, MessageSquare, Code, ChevronLeft, ChevronRight, Bot, Terminal, FileCode, Shield, Palette, Package, Loader, BarChart3, Circle, Server, Sparkles } from 'lucide-react';
+import './ProjectEdit.css';
 import { useProject } from '../context/ProjectContext';
 import { AppPage, UserStory, FileNode } from '../types';
 import { projectService } from '../services/api';
@@ -12,6 +13,7 @@ import AuthModal from '../components/AuthModal';
 import ColorsModal from '../components/ColorsModal';
 import ComponentsModal from '../components/ComponentsModal';
 import DependenciesModal from '../components/DependenciesModal';
+import TemasPopup from '../components/TemasPopup';
 import GeneracionCompletaPopup from '../components/GeneracionCompletaPopup';
 import PopupExecutePrompts from '../components/PopupExecutePrompts';
 import KanbanView from '../components/views/KanbanView';
@@ -136,6 +138,7 @@ export default function ProjectEdit() {
   const [userStoriesForExecution, setUserStoriesForExecution] = useState<UserStory[]>([]);
   const [selectedUserStoryIds, setSelectedUserStoryIds] = useState<string[]>([]);
   const [isDependenciesModalOpen, setIsDependenciesModalOpen] = useState(false);
+  const [isTemasPopupOpen, setIsTemasPopupOpen] = useState(false);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -832,6 +835,7 @@ const handleCopyPrompt = async () => {
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsColorsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Palette className="h-5 w-5 text-purple-400" /><span>Colores</span></motion.button>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsComponentsModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Package className="h-5 w-5 text-green-400" /><span>Componentes</span></motion.button>
                 <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsDependenciesModalOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Server className="h-5 w-5 text-orange-400" /><span>Elección de Dependencias</span></motion.button>
+                <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setIsTemasPopupOpen(true)} className="flex items-center gap-2 bg-slate-800/50 border border-slate-700 px-4 py-2 rounded-lg hover:bg-slate-800"><Sparkles className="h-5 w-5 text-pink-400" /><span>Temas</span></motion.button>
               </div>
               
               {/* Segunda fila de botones */}
@@ -1053,6 +1057,7 @@ const handleCopyPrompt = async () => {
       />
       <ComponentsModal isOpen={isComponentsModalOpen} onClose={() => setIsComponentsModalOpen(false)} />
       <DependenciesModal isOpen={isDependenciesModalOpen} onClose={() => setIsDependenciesModalOpen(false)} />
+      <TemasPopup isOpen={isTemasPopupOpen} onClose={() => setIsTemasPopupOpen(false)} />
       {isGeneracionCompletaPopupOpen && <GeneracionCompletaPopup onClose={() => setIsGeneracionCompletaPopupOpen(false)} />}
 <IAPanel 
   projectEditSetters={{

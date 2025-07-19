@@ -272,6 +272,13 @@ export const projectService = {
     });
   },
   
+  // Add the missing generatePagesWithGemini function
+  generatePagesWithGemini: async (projectId: string) => {
+    return apiRequest(`/projects/${projectId}/generate-pages`, {
+      method: 'POST'
+    });
+  },
+  
   generateAdditionalPages: async (projectId: string, existingPages: unknown[]) => {
     return apiRequest(`/projects/${projectId}/generate-additional-pages`, {
       method: 'POST',
@@ -449,6 +456,20 @@ export const projectService = {
     return apiRequest(`/projects/${projectId}/color-palette`, {
       method: 'PUT',
       body: JSON.stringify(colorPaletteData),
+    });
+  },
+
+  // Nueva función para generar ER, controllers y user stories basándose en páginas generadas
+  generarrestodepaginasconia: async (projectId: string, pages: Array<{
+    name: string;
+    route: string;
+    description?: string;
+    isEssential?: boolean;
+    priority?: string;
+  }>) => {
+    return apiRequest(`/projects/${projectId}/generar-resto-paginas-ia`, {
+      method: 'POST',
+      body: JSON.stringify({ pages }),
     });
   },
 };

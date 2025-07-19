@@ -1,0 +1,288 @@
+/* Import Neuro-Nova tokens */
+@import '../../styles/neuro-nova-tokens.css';
+
+/* Kanban View Neuro-Nova Styles */
+.kanban-container {
+  @apply pb-8 font-sans;
+  background: var(--nn-bg-0);
+  color: var(--nn-text-strong);
+}
+
+/* Header Styles */
+.kanban-header {
+  @apply mb-8 p-8 relative overflow-hidden rounded-3xl;
+  background: linear-gradient(135deg, var(--nn-bg-1) 0%, var(--nn-bg-2) 100%);
+  border: 1px solid var(--nn-border-primary);
+  box-shadow: var(--nn-shadow-neon-cyan);
+  backdrop-filter: blur(20px);
+}
+
+.kanban-header-bg {
+  @apply absolute inset-0;
+  background: linear-gradient(90deg, 
+    var(--nn-accent-primary) 0%, 
+    var(--nn-accent-secondary) 50%, 
+    var(--nn-accent-tertiary) 100%);
+  opacity: 0.1;
+}
+
+.kanban-header-orb-1 {
+  @apply absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl;
+  background: linear-gradient(135deg, var(--nn-accent-primary), var(--nn-accent-secondary));
+  opacity: 0.2;
+}
+
+.kanban-header-orb-2 {
+  @apply absolute bottom-0 left-0 w-24 h-24 rounded-full blur-2xl;
+  background: linear-gradient(45deg, var(--nn-accent-tertiary), var(--nn-accent-primary));
+  opacity: 0.2;
+}
+
+.kanban-icon-container {
+  @apply p-3 rounded-2xl;
+  background: linear-gradient(135deg, var(--nn-accent-primary), var(--nn-accent-secondary));
+  border: 1px solid var(--nn-border-accent);
+  opacity: 0.2;
+}
+
+.kanban-title {
+  @apply text-3xl font-bold tracking-tight;
+  background: linear-gradient(90deg, var(--nn-text-strong), var(--nn-text-medium));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: var(--nn-text-shadow-neon);
+}
+
+.kanban-subtitle {
+  color: var(--nn-text-medium);
+  @apply text-sm mt-1 flex items-center space-x-2;
+}
+
+.kanban-badge {
+  @apply px-3 py-1 rounded-full text-xs font-medium;
+  background: var(--nn-bg-2);
+  color: var(--nn-text-strong);
+  border: 1px solid var(--nn-border-primary);
+}
+
+/* Button Styles */
+.kanban-btn-expand {
+  @apply p-3 rounded-2xl transition-all duration-300;
+  background: var(--nn-bg-1);
+  border: 1px solid var(--nn-border-primary);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-btn-expand:hover {
+  background: var(--nn-bg-2);
+  box-shadow: var(--nn-shadow-neon-cyan);
+}
+
+.kanban-btn-primary {
+  @apply flex items-center space-x-3 px-6 py-3 rounded-2xl transition-all duration-300 transform;
+  background: linear-gradient(135deg, var(--nn-accent-primary), var(--nn-accent-secondary));
+  border: 1px solid var(--nn-border-accent);
+  box-shadow: var(--nn-shadow-neon-mag);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-btn-primary:hover {
+  @apply scale-105;
+  box-shadow: var(--nn-shadow-neon-mag), 0 0 30px var(--nn-accent-primary);
+}
+
+.kanban-btn-secondary {
+  @apply flex items-center space-x-3 px-6 py-3 rounded-2xl transition-all duration-300 transform;
+  background: linear-gradient(135deg, var(--nn-accent-secondary), var(--nn-accent-tertiary));
+  border: 1px solid var(--nn-border-accent);
+  box-shadow: var(--nn-shadow-neon-cyan);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-btn-secondary:hover {
+  @apply scale-105;
+  box-shadow: var(--nn-shadow-neon-cyan), 0 0 30px var(--nn-accent-secondary);
+}
+
+/* Column Styles */
+.kanban-column {
+  @apply relative;
+}
+
+.kanban-column-container {
+  @apply overflow-hidden rounded-3xl transition-all duration-500;
+  background: linear-gradient(135deg, var(--nn-bg-1) 0%, var(--nn-bg-2) 100%);
+  border: 1px solid var(--nn-border-primary);
+  box-shadow: var(--nn-shadow-neon-lime);
+  backdrop-filter: blur(20px);
+}
+
+.kanban-column-container:hover {
+  @apply scale-[1.02];
+  box-shadow: var(--nn-shadow-neon-lime), 0 0 40px var(--nn-accent-tertiary);
+}
+
+.kanban-column-header {
+  @apply p-6 border-b;
+  background: linear-gradient(90deg, var(--nn-bg-2), var(--nn-bg-1));
+  border-color: var(--nn-border-primary);
+  backdrop-filter: blur(15px);
+}
+
+.kanban-column-title {
+  @apply font-bold text-xl tracking-wide;
+  color: var(--nn-text-strong);
+  text-shadow: var(--nn-text-shadow-neon);
+}
+
+.kanban-column-count {
+  @apply text-sm font-bold px-4 py-2 rounded-full;
+  background: linear-gradient(135deg, var(--nn-bg-2), var(--nn-bg-1));
+  color: var(--nn-text-strong);
+  border: 1px solid var(--nn-border-primary);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-column-content {
+  @apply p-6 space-y-4 min-h-[600px] relative;
+}
+
+.kanban-column-bg-pattern {
+  @apply absolute inset-0 opacity-5;
+}
+
+.kanban-column-orb-1 {
+  @apply absolute top-4 right-4 w-16 h-16 rounded-full blur-xl;
+  background: linear-gradient(135deg, var(--nn-accent-secondary), var(--nn-accent-tertiary));
+}
+
+.kanban-column-orb-2 {
+  @apply absolute bottom-4 left-4 w-12 h-12 rounded-full blur-lg;
+  background: linear-gradient(45deg, var(--nn-accent-tertiary), var(--nn-accent-primary));
+}
+
+/* Empty State Styles */
+.kanban-empty-column {
+  @apply flex flex-col items-center justify-center h-full text-center py-16 relative z-10;
+  color: var(--nn-text-medium);
+}
+
+.kanban-empty-container {
+  @apply p-6 rounded-3xl;
+  background: linear-gradient(135deg, var(--nn-bg-1), var(--nn-bg-2));
+  border: 1px solid var(--nn-border-primary);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-empty-state {
+  @apply text-center py-20 rounded-3xl;
+  background: linear-gradient(135deg, var(--nn-bg-1), var(--nn-bg-2));
+  border: 1px solid var(--nn-border-primary);
+  backdrop-filter: blur(20px);
+}
+
+.kanban-empty-bg {
+  @apply absolute inset-0 rounded-3xl;
+  background: linear-gradient(90deg, 
+    var(--nn-accent-primary) 0%, 
+    var(--nn-accent-secondary) 50%, 
+    var(--nn-accent-tertiary) 100%);
+  opacity: 0.1;
+}
+
+.kanban-empty-title {
+  @apply text-3xl font-bold mb-4;
+  background: linear-gradient(90deg, var(--nn-text-strong), var(--nn-text-medium));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.kanban-empty-text {
+  @apply mb-10 max-w-md mx-auto text-lg;
+  color: var(--nn-text-medium);
+}
+
+.kanban-empty-btn {
+  @apply flex items-center space-x-3 mx-auto px-8 py-4 rounded-2xl transition-all duration-300 transform;
+  background: linear-gradient(135deg, var(--nn-accent-secondary), var(--nn-accent-tertiary));
+  border: 1px solid var(--nn-border-accent);
+  box-shadow: var(--nn-shadow-neon-cyan);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-empty-btn:hover {
+  @apply scale-105;
+  box-shadow: var(--nn-shadow-neon-cyan), 0 0 30px var(--nn-accent-secondary);
+}
+
+.kanban-empty-btn-alt {
+  @apply flex items-center space-x-3 mx-auto px-8 py-4 rounded-2xl transition-all duration-300 transform;
+  background: linear-gradient(135deg, var(--nn-accent-primary), var(--nn-accent-secondary));
+  border: 1px solid var(--nn-border-accent);
+  box-shadow: var(--nn-shadow-neon-mag);
+  backdrop-filter: blur(10px);
+}
+
+.kanban-empty-btn-alt:hover {
+  @apply scale-105;
+  box-shadow: var(--nn-shadow-neon-mag), 0 0 30px var(--nn-accent-primary);
+}
+
+/* Story Card Styles */
+.kanban-story-card {
+  @apply cursor-grab active:cursor-grabbing transform transition-all duration-300 relative z-10;
+}
+
+.kanban-story-card:hover {
+  @apply scale-105;
+}
+
+/* Animations */
+@keyframes kanbanFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kanban-fade-in-up {
+  animation: kanbanFadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Enhanced Shadow Effects */
+.kanban-shadow-3xl:hover {
+  box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.5), var(--nn-shadow-neon-lime);
+}
+
+/* Icon Styles */
+.kanban-icon {
+  color: var(--nn-accent-primary);
+}
+
+.kanban-icon-secondary {
+  color: var(--nn-accent-secondary);
+}
+
+.kanban-icon-tertiary {
+  color: var(--nn-accent-tertiary);
+}
+
+/* Text Styles */
+.kanban-text-primary {
+  color: var(--nn-text-strong);
+}
+
+.kanban-text-secondary {
+  color: var(--nn-text-medium);
+}
+
+.kanban-text-muted {
+  color: var(--nn-text-weak);
+}
